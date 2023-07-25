@@ -6,9 +6,10 @@ defmodule WeatherStationWeb.Endpoint do
   # Set :encryption_salt if you would also like to encrypt it.
   @session_options [
     store: :cookie,
+    max_age: :timer.hours(24) * 400, # maximum max-age enforced by chrome is 400 days
     key: "_weather_station_key",
     signing_salt: "onZmhPmj",
-    same_site: "Lax"
+    same_site: "Strict"
   ]
 
   socket "/live", Phoenix.LiveView.Socket, websocket: [connect_info: [session: @session_options]]
