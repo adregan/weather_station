@@ -4,6 +4,7 @@ defmodule WeatherStationWeb.Router do
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
+    plug WeatherStationWeb.Plugs.SessionId
     plug :fetch_live_flash
     plug :put_root_layout, html: {WeatherStationWeb.Layouts, :root}
     plug :protect_from_forgery
@@ -18,6 +19,7 @@ defmodule WeatherStationWeb.Router do
     pipe_through :browser
 
     live "/", WeatherDisplayLive
+    live "/authorize", AuthorizeLive
   end
 
   # Other scopes may use custom stacks.

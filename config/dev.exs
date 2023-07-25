@@ -78,4 +78,7 @@ config :phoenix, :plug_init_mode, :runtime
 # Disable swoosh api client as it is only required for production adapters.
 config :swoosh, :api_client, false
 
+config :weather_station,
+  tempest_client_id: "947cbfb2-d4d5-43c9-9e41-cc5296362ff2"
+
 import_config "dev.secret.exs"
