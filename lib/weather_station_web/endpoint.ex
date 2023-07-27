@@ -9,7 +9,7 @@ defmodule WeatherStationWeb.Endpoint do
     max_age: :timer.hours(24) * 400, # maximum max-age enforced by chrome is 400 days
     key: "_weather_station_key",
     signing_salt: "onZmhPmj",
-    same_site: "Strict"
+    same_site: "Lax"
   ]
 
   socket "/live", Phoenix.LiveView.Socket, websocket: [connect_info: [session: @session_options]]
