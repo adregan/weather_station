@@ -1,6 +1,7 @@
 defmodule WeatherStation.Tempest do
   use WeatherStationWeb, :html
   use Tesla
+  require Logger
 
   plug Tesla.Middleware.BaseUrl, "https://swd.weatherflow.com"
   plug Tesla.Middleware.FormUrlencoded
@@ -34,22 +35,39 @@ defmodule WeatherStation.Tempest do
 
     case post("/id/oauth2/token", req_params) do
       {:ok, %{status: 200, body: body}} ->
-        %{"access_token" => access_token} = Jason.decode!(body)
-        {:ok, access_token}
+        token =
+          Jason.decode!(body)
+          |> Map.get("access_token")
 
-      {:ok, %{status: 401, body: body}} ->
-        %{"error_description" => error_description} = Jason.decode!(body)
+        {:ok, token}
+
+      {:ok, %{status: 401} = response} ->
+        error_description =
+          # safer to not pattern match on the shape of the error responses from the api
+          Map.get(response, :body, "")
+          |> decode_and_get("error_description", "Unauthorized request to Tempest")
+
         {:error, "Unauthorized request to the tempest server: #{error_description}"}
 
       {:ok, %{status: status} = response} ->
-        {:error,
-         """
-           Request failed with status: #{status}
-           Response was: #{inspect(response)}
-         """}
+        {:error, "Request failed with status: #{status} Response was: #{inspect(response)}"}
 
       {:error, reason} ->
         {:error, "Something went wrong: #{inspect(reason)}"}
+    end
+  end
+
+  defp decode_and_get(data, key, default) do
+    case Jason.decode(data) do
+      {:ok, decoded} ->
+        Map.get(decoded, key, default)
+
+      {:error, decode_error} ->
+        Logger.warn(
+          "Something went wrong decoding the json from Tempest: #{inspect(decode_error)}"
+        )
+
+        default
     end
   end
 end
