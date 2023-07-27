@@ -8,41 +8,57 @@ defmodule WeatherStationWeb.AuthorizeLive do
 
   def mount(_, session, socket) do
     id = Map.get(session, "session_id")
-    {:ok, assign(socket, :id, id)}
+
+    outdoor_authorized = TokenServer.has_access_token?(:outdoor, id)
+    indoor_authorized = TokenServer.has_access_token?(:indoor, id)
+
+    socket =
+      socket
+      |> assign(:id, id)
+      |> assign(:outdoor_authorized, outdoor_authorized)
+      |> assign(:indoor_authorized, indoor_authorized)
+
+    {:ok, socket}
   end
 
   def render(assigns) do
     ~H"""
     <h2>Outdoor Sensors</h2>
-    <ul>
-      <li>
-        <a href={Tempest.authorize_link()}>Tempest</a>
-      </li>
-    </ul>
+    <%= if @outdoor_authorized do %>
+      <p>Authorized!</p>
+    <% else %>
+      <ul>
+        <li>
+          <a href={Tempest.authorize_link()}>Tempest</a>
+        </li>
+      </ul>
+    <% end %>
     """
   end
 
   def handle_params(%{"code" => code, "state" => "outdoor:tempest"}, _uri, socket) do
-    %{id: user_id} = socket.assigns
+    case TokenServer.fetch_access_token(:tempest, socket.assigns.id, code) do
+      {:ok, token} ->
+        Logger.info("[#{__MODULE__}] received Tempest token: #{token}")
 
-    thunk = fn -> Tempest.access_token(code) end
-
-    socket =
-      case TokenServer.fetch_access_token(user_id, :tempest, thunk) do
-        {:error, reason} ->
-          Logger.warn("[#{__MODULE__}] received Tempest authentication error: #{inspect(reason)}")
-
-          socket
-          |> put_flash(:error, "Something went wrong authorizing Tempest, please try again")
-
-        {:ok, token} ->
-          Logger.info("[#{__MODULE__}] received Tempest token: #{token}")
-
+        socket =
           socket
           |> put_flash(:info, "Successfully authorized Tempest")
-      end
+          |> assign(:outdoor_authorized, true)
+          |> push_patch(to: ~p"/authorize")
 
-    {:noreply, push_patch(socket, to: ~p"/authorize")}
+        {:noreply, socket}
+
+      {:error, reason} ->
+        Logger.warn("[#{__MODULE__}] received Tempest authentication error: #{inspect(reason)}")
+
+        socket =
+          socket
+          |> put_flash(:error, "Something went wrong authorizing Tempest, please try again")
+          |> push_patch(to: ~p"/authorize")
+
+        {:noreply, socket}
+    end
   end
 
   def handle_params(%{"code" => _code, "state" => "indoor:" <> _service}, _uri, socket) do
