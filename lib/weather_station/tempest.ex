@@ -63,7 +63,7 @@ defmodule WeatherStation.Tempest do
         Map.get(decoded, key, default)
 
       {:error, decode_error} ->
-        Logger.warn(
+        Logger.warning(
           "Something went wrong decoding the json from Tempest: #{inspect(decode_error)}"
         )
 

@@ -66,7 +66,7 @@ defmodule WeatherStationWeb.AuthorizeLive do
         {:noreply, socket}
 
       {:error, reason} ->
-        Logger.warn("[#{__MODULE__}] received Tempest authentication error: #{inspect(reason)}")
+        Logger.warning("[#{__MODULE__}] received Tempest authentication error: #{inspect(reason)}")
 
         socket =
           socket
