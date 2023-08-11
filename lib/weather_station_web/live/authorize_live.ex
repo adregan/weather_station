@@ -6,26 +6,6 @@ defmodule WeatherStationWeb.AuthorizeLive do
 
   require Logger
 
-  def mount(_, session, socket) do
-    %{"session_id" => session_id} = session
-
-    outdoor_token =
-      Tokens.list_tokens(session_id, %{type: :outdoor})
-      |> List.first()
-
-    indoor_token =
-      Tokens.list_tokens(session_id, %{type: :indoor})
-      |> List.first()
-
-    socket =
-      socket
-      |> assign(:session_id, session_id)
-      |> assign(:outdoor_token, outdoor_token)
-      |> assign(:indoor_token, indoor_token)
-
-    {:ok, socket}
-  end
-
   def render(assigns) do
     ~H"""
     <h2><%= gettext("Outdoor Sensors") %></h2>
@@ -48,14 +28,18 @@ defmodule WeatherStationWeb.AuthorizeLive do
     """
   end
 
+  def mount(_, _, socket) do
+    {:ok, socket}
+  end
+
   def handle_params(%{"code" => code, "state" => "outdoor:tempest"}, _uri, socket) do
     case Tempest.access_token(code) do
       {:ok, token} ->
         Logger.info("[#{__MODULE__}] received Tempest token: #{token}")
-        %{session_id: session_id} = socket.assigns
+        %{user_id: user_id} = socket.assigns
 
         {:ok, outdoor_token} =
-          Tokens.create_token(%{session_id: session_id, service: :tempest, token: token})
+          Tokens.create_token(%{session_id: user_id, service: :tempest, token: token})
 
         socket =
           socket
@@ -66,7 +50,9 @@ defmodule WeatherStationWeb.AuthorizeLive do
         {:noreply, socket}
 
       {:error, reason} ->
-        Logger.warning("[#{__MODULE__}] received Tempest authentication error: #{inspect(reason)}")
+        Logger.warning(
+          "[#{__MODULE__}] received Tempest authentication error: #{inspect(reason)}"
+        )
 
         socket =
           socket

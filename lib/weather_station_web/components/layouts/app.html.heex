@@ -1,6 +1,12 @@
-<main>
-  <div>
-    <.flash_group flash={@flash} />
-    <%= @inner_content %>
-  </div>
+<.live_component
+  module={WeatherStationWeb.HeaderComponent}
+  id="weather-station-header"
+  outdoor_token={@outdoor_token}
+  indoor_token={@indoor_token}
+/>
+<main class="p-4">
+  <%= @inner_content %>
 </main>
+<footer>
+  <.flash_group flash={@flash} />
+</footer>

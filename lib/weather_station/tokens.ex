@@ -41,6 +41,13 @@ defmodule WeatherStation.Tokens do
 
   def filter_by_location(query, _), do: query
 
+  def get_token_by_location(session_id, location) do
+    from(Token)
+    |> where(session_id: ^session_id)
+    |> filter_by_location(%{type: location})
+    |> Repo.one()
+  end
+
   @doc """
   Gets a single token.
 

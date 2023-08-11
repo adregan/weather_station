@@ -18,8 +18,11 @@ defmodule WeatherStationWeb.Router do
   scope "/", WeatherStationWeb do
     pipe_through :browser
 
-    live "/", WeatherDisplayLive
-    live "/authorize", AuthorizeLive
+    live_session :default, on_mount: [WeatherStationWeb.StationSession] do
+      live "/", WeatherDisplayLive, :index
+      live "/authorize", AuthorizeLive, :index
+      live "/authorize/callback", AuthorizeLive, :authorize
+    end
   end
 
   # Other scopes may use custom stacks.
