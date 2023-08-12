@@ -5,7 +5,7 @@ defmodule WeatherStation.Accounts.User do
   @primary_key {:id, :binary_id, autogenerate: true}
 
   schema "users" do
-    field :auth_code, :string, autogenerate: {WeatherStation.AuthCode, :generate, [6]}
+    field :auth_code, :string, autogenerate: {WeatherStation.AuthCode, :generate, [8]}
     field :session_key, Ecto.UUID, autogenerate: {Ecto.UUID, :generate, []}
 
     timestamps()

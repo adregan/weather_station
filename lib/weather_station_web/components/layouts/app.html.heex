@@ -9,4 +9,6 @@
 </main>
 <footer>
   <.flash_group flash={@flash} />
+  <%= gettext("Authorize on another device by visiting: ") %>
+  <%= url(~p"/code/#{@auth_code}") %>
 </footer>

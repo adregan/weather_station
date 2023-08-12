@@ -13,6 +13,7 @@ defmodule WeatherStationWeb.StationSession do
     socket =
       socket
       |> assign_new(:user_id, fn -> user.id end)
+      |> assign_new(:auth_code, fn -> user.auth_code end)
       |> assign_new(:outdoor_token, fn -> outdoor_token end)
       |> assign_new(:indoor_token, fn -> indoor_token end)
 
