@@ -4,7 +4,7 @@ defmodule WeatherStationWeb.Router do
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
-    plug WeatherStationWeb.Plugs.SessionId
+    plug WeatherStationWeb.Plugs.SessionKey
     plug :fetch_live_flash
     plug :put_root_layout, html: {WeatherStationWeb.Layouts, :root}
     plug :protect_from_forgery

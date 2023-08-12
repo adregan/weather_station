@@ -1,12 +1,12 @@
-defmodule WeatherStation.Tokens do
+defmodule WeatherStation.Auth do
   @moduledoc """
-  The Tokens context.
+  The Auth context.
   """
 
   import Ecto.Query, warn: false
   alias WeatherStation.Repo
 
-  alias WeatherStation.Tokens.Token
+  alias WeatherStation.Auth.Token
 
   @doc """
   Returns the list of tokens.
@@ -19,33 +19,6 @@ defmodule WeatherStation.Tokens do
   """
   def list_tokens do
     Repo.all(Token)
-  end
-
-  @doc """
-  Returns a list of tokens for the given user's session_id
-  """
-  def list_tokens(session_id, filter \\ %{}) when is_map(filter) do
-    from(Token)
-    |> where(session_id: ^session_id)
-    |> filter_by_location(filter)
-    |> Repo.all()
-  end
-
-  def filter_by_location(query, %{type: :outdoor}) do
-    query |> where(service: :tempest)
-  end
-
-  def filter_by_location(query, %{type: :indoor}) do
-    query |> where(service: :ecobee)
-  end
-
-  def filter_by_location(query, _), do: query
-
-  def get_token_by_location(session_id, location) do
-    from(Token)
-    |> where(session_id: ^session_id)
-    |> filter_by_location(%{type: location})
-    |> Repo.one()
   end
 
   @doc """
@@ -63,6 +36,12 @@ defmodule WeatherStation.Tokens do
 
   """
   def get_token!(id), do: Repo.get!(Token, id)
+
+  def get_tokens_by_user(user) do
+    Token
+    |> where(user_id: ^user.id)
+    |> Repo.all()
+  end
 
   @doc """
   Creates a token.

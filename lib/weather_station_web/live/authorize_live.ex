@@ -1,7 +1,7 @@
 defmodule WeatherStationWeb.AuthorizeLive do
   use WeatherStationWeb, :live_view
 
-  alias WeatherStation.Tokens
+  alias WeatherStation.Auth
   alias WeatherStation.Tempest
 
   require Logger
@@ -35,11 +35,17 @@ defmodule WeatherStationWeb.AuthorizeLive do
   def handle_params(%{"code" => code, "state" => "outdoor:tempest"}, _uri, socket) do
     case Tempest.access_token(code) do
       {:ok, token} ->
-        Logger.info("[#{__MODULE__}] received Tempest token: #{token}")
         %{user_id: user_id} = socket.assigns
 
         {:ok, outdoor_token} =
-          Tokens.create_token(%{session_id: user_id, service: :tempest, token: token})
+          Auth.create_token(%{
+            user_id: user_id,
+            token: token,
+            service: :tempest,
+            location: :outdoor
+          })
+
+        Logger.info("Successfully stored outdoor:tempest token for user: #{user_id}")
 
         socket =
           socket
@@ -78,8 +84,11 @@ defmodule WeatherStationWeb.AuthorizeLive do
   end
 
   def handle_event("unauthorize-outdoor", _, socket) do
-    %{outdoor_token: token} = socket.assigns
-    Tokens.delete_token(token)
+    {:ok, _} =
+      socket.assigns
+      |> Map.get(:outdoor_token)
+      |> Auth.delete_token()
+
     {:noreply, assign(socket, :outdoor_token, nil)}
   end
 
