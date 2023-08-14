@@ -2,7 +2,9 @@ defmodule WeatherStationWeb.ErrorJSONTest do
   use WeatherStationWeb.ConnCase, async: true
 
   test "renders 404" do
-    assert WeatherStationWeb.ErrorJSON.render("404.json", %{}) == %{errors: %{detail: "Not Found"}}
+    assert WeatherStationWeb.ErrorJSON.render("404.json", %{}) == %{
+             errors: %{detail: "Not Found"}
+           }
   end
 
   test "renders 500" do

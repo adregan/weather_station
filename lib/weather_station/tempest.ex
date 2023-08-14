@@ -42,8 +42,8 @@ defmodule WeatherStation.Tempest do
         {:ok, token}
 
       {:ok, %{status: 401} = response} ->
+        # safer to not pattern match on the shape of the error responses from the api
         error_description =
-          # safer to not pattern match on the shape of the error responses from the api
           Map.get(response, :body, "")
           |> decode_and_get("error_description", "Unauthorized request to Tempest")
 

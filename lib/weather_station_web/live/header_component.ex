@@ -8,7 +8,7 @@ defmodule WeatherStationWeb.HeaderComponent do
 
   def render(assigns) do
     ~H"""
-    <header class="flex justify-center space-x-4 py-4 border-green-300 border-b-2 w-screen">
+    <header class="flex w-screen justify-center space-x-4 border-b-2 border-green-300 py-4">
       <.auth_or_connection location={:outdoor} token={@outdoor_token} />
       <.auth_or_connection location={:indoor} token={@indoor_token} />
     </header>

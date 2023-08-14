@@ -40,6 +40,7 @@ defmodule WeatherStation.TempestTest do
 
   test "token request reports an error when request 401s" do
     error_description = "uh oh. Don't do that"
+
     mock(fn
       %{method: :post, url: @tempest_token_api} ->
         %Tesla.Env{status: 401, body: Jason.encode!(%{error_description: error_description})}
@@ -52,6 +53,7 @@ defmodule WeatherStation.TempestTest do
 
   test "token request reports all other server errors" do
     response = %Tesla.Env{status: 500, body: Jason.encode!(%{wow: "not a good idea"})}
+
     mock(fn
       %{method: :post, url: @tempest_token_api} -> response
     end)
@@ -63,6 +65,7 @@ defmodule WeatherStation.TempestTest do
 
   test "token request reports errors from Tesla" do
     response = {:error, "out of service"}
+
     mock(fn
       %{method: :post, url: @tempest_token_api} -> response
     end)
@@ -74,6 +77,7 @@ defmodule WeatherStation.TempestTest do
 
   test "token request returns the access token" do
     access_token = "really-nice-token"
+
     mock(fn
       %{method: :post, url: @tempest_token_api} ->
         %Tesla.Env{status: 200, body: Jason.encode!(%{access_token: access_token})}

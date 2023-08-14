@@ -6,9 +6,8 @@ defmodule WeatherStation.AuthCode do
 
   def generate(len) when is_number(len) do
     for _ <- 1..len, into: "" do
-     # :rand.uniform returns in the range of 1-N. To access 0, subtract 1.
+      # :rand.uniform returns in the range of 1-N. To access 0, subtract 1.
       Enum.at(@alpha, :rand.uniform(@max) - 1)
     end
   end
-
 end
