@@ -1,14 +1,7 @@
-<.live_component
-  module={WeatherStationWeb.HeaderComponent}
-  id="weather-station-header"
-  outdoor_token={@outdoor_token}
-  indoor_token={@indoor_token}
-/>
-<main class="p-4">
-  <%= @inner_content %>
-</main>
-<footer>
-  <.flash_group flash={@flash} />
-  <%= gettext("Authorize on another device by visiting: ") %>
-  <%= url(~p"/code/#{@auth_code}") %>
-</footer>
+<section class="grid-rows-weather-station grid h-screen">
+  <.weather_station_header outdoor_token={@outdoor_token} indoor_token={@indoor_token} />
+  <main class="p-4">
+    <%= @inner_content %>
+  </main>
+  <.weather_station_footer auth_code={@auth_code} flash={@flash} />
+</section>

@@ -1,9 +1,28 @@
-:root {
-  color-scheme: light dark;
-}
-
 @import "tailwindcss/base";
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
 /* This file is for your main application CSS */
+
+:root {
+  color-scheme: light dark;
+}
+
+.shake {
+  animation: shake 0.25s ease-in-out infinite;
+}
+
+@keyframes shake {
+  25% {
+    transform: translateX(-6px);
+  }
+  50% {
+    transform: translateX(0px);
+  }
+  75% {
+    transform: translateX(6px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}

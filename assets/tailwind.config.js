@@ -14,7 +14,10 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        brand: "#FD4F00",
+        brand: "#D8BFD8",
+      },
+      gridTemplateRows: {
+        "weather-station": "max-content 1fr max-content",
       }
     },
   },
