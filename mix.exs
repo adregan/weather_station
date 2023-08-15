@@ -50,8 +50,7 @@ defmodule WeatherStation.MixProject do
       {:gettext, "~> 0.20"},
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
-      {:tesla, "~> 1.4"},
-      {:hackney, "~> 1.17"},
+      {:req, "~> 0.3.0"},
       {:tailwind_formatter, "~> 0.3.7", only: [:dev, :test], runtime: false}
     ]
   end

@@ -32,5 +32,6 @@ config :logger, level: :warning
 # Initialize plugs at runtime for faster test compilation
 config :phoenix, :plug_init_mode, :runtime
 
-# Use mock adapter for testing client calls
-config :tesla, adapter: Tesla.Mock
+config :weather_station,
+  tempest_client_id: "TESTTESTTESTTEST_CLIENT_ID",
+  tempest_client_secret: "TESTTESTTESTTEST_CLIENT_SECRET"
