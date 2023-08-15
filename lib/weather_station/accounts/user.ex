@@ -13,6 +13,8 @@ defmodule WeatherStation.Accounts.User do
 
   @doc false
   def changeset(user, attrs) do
-    user |> cast(attrs, [:auth_code, :session_key])
+    user
+    |> cast(attrs, [:auth_code, :session_key])
+    |> validate_required([:auth_code, :session_key])
   end
 end

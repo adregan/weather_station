@@ -21,10 +21,15 @@ defmodule WeatherStation.AccountsTest do
     end
 
     test "create_user/1 with valid data creates a user" do
-      valid_attrs = %{auth_code: "some auth_code"}
+      session_key = Ecto.UUID.generate()
+      valid_attrs = %{
+        auth_code: "some auth_code",
+        session_key: session_key
+      }
 
       assert {:ok, %User{} = user} = Accounts.create_user(valid_attrs)
       assert user.auth_code == "some auth_code"
+      assert user.session_key == session_key
     end
 
     test "create_user/1 with invalid data returns error changeset" do

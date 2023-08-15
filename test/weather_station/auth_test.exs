@@ -21,7 +21,11 @@ defmodule WeatherStation.AuthTest do
     end
 
     test "create_token/1 with valid data creates a token" do
-      valid_attrs = %{token: "some token"}
+      valid_attrs = %{
+        token: "some token",
+        location: :indoor,
+        service: :ecobee
+      }
 
       assert {:ok, %Token{} = token} = Auth.create_token(valid_attrs)
       assert token.token == "some token"

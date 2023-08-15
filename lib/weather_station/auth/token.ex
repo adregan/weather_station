@@ -15,6 +15,6 @@ defmodule WeatherStation.Auth.Token do
   def changeset(token, attrs) do
     token
     |> cast(attrs, [:token, :user_id, :service, :location])
-    |> validate_required([:token, :user_id, :service, :location])
+    |> validate_required([:token, :service, :location])
   end
 end

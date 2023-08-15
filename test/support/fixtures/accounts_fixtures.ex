@@ -11,7 +11,8 @@ defmodule WeatherStation.AccountsFixtures do
     {:ok, user} =
       attrs
       |> Enum.into(%{
-        auth_code: "some auth_code"
+        auth_code: WeatherStation.AuthCode.generate(8),
+        session_key: Ecto.UUID.generate()
       })
       |> WeatherStation.Accounts.create_user()
 
