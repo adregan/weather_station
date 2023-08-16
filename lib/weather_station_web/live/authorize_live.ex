@@ -9,7 +9,7 @@ defmodule WeatherStationWeb.AuthorizeLive do
   def render(assigns) do
     ~H"""
     <h2><%= gettext("Outdoor Sensors") %></h2>
-    <%= if is_nil(@outdoor_token) do %>
+    <%= if is_nil(@outdoor_connection.token) do %>
       <ul>
         <li>
           <a href={Tempest.authorize_link()}>
@@ -19,7 +19,7 @@ defmodule WeatherStationWeb.AuthorizeLive do
       </ul>
     <% else %>
       <p>
-        <%= authorized_text(@outdoor_token) %>
+        <%= authorized_text(@outdoor_connection.token) %>
         <.button phx-click="unauthorize-outdoor">
           <%= gettext("unauthorize") %>
         </.button>
@@ -84,12 +84,13 @@ defmodule WeatherStationWeb.AuthorizeLive do
   end
 
   def handle_event("unauthorize-outdoor", _, socket) do
-    {:ok, _} =
-      socket.assigns
-      |> Map.get(:outdoor_token)
-      |> Auth.delete_token()
+    %{outdoor_connection: outdoor_connection} = socket.assigns
 
-    {:noreply, assign(socket, :outdoor_token, nil)}
+    {:ok, _} = outdoor_connection.token |> Auth.delete_token()
+
+    outdoor_connection = outdoor_connection |> WeatherStation.Connection.disconnect()
+
+    {:noreply, assign(socket, :outdoor_connection, outdoor_connection)}
   end
 
   def handle_info(msg, socket) do
