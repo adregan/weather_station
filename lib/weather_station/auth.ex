@@ -22,6 +22,15 @@ defmodule WeatherStation.Auth do
   end
 
   @doc """
+  Returns the list of tokens.
+  """
+  def list_tokens_by_user(user) do
+    Token
+    |> where(user_id: ^user.id)
+    |> Repo.all()
+  end
+
+  @doc """
   Gets a single token.
 
   Raises `Ecto.NoResultsError` if the Token does not exist.
@@ -36,12 +45,6 @@ defmodule WeatherStation.Auth do
 
   """
   def get_token!(id), do: Repo.get!(Token, id)
-
-  def get_tokens_by_user(user) do
-    Token
-    |> where(user_id: ^user.id)
-    |> Repo.all()
-  end
 
   @doc """
   Creates a token.

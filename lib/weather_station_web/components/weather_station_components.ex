@@ -2,34 +2,54 @@ defmodule WeatherStationWeb.WeatherStationComponents do
   use WeatherStationWeb, :html
   alias WeatherStation.Token
 
-  # TODO: A struct to represent connections rather than just the token
-  attr :indoor_token, Token
-  attr :outdoor_token, Token
+  attr :outdoor_connection, Token
+  attr :indoor_connection, Token
 
   def weather_station_header(assigns) do
     ~H"""
-    <header class="flex w-screen items-center justify-center space-x-4 border-b-2 border-green-300 py-4">
-      <.auth_or_connection location={:outdoor} token={@outdoor_token} />
-      <.auth_or_connection location={:indoor} token={@indoor_token} />
+    <header class="grid-cols-[max-content_1fr_max-content_max-content] grid w-screen gap-x-4 border-b-2 border-current">
+      <.link navigate={~p"/"} class="flex items-center px-4">WS</.link>
+      <div class="col-start-3 flex flex-col justify-center py-2">
+        <.connection_status location={:outdoor} connection={@outdoor_connection} />
+        <.connection_status location={:indoor} connection={@indoor_connection} />
+      </div>
+
+      <.link
+        navigate={~p"/authorize"}
+        class="col-start-4 flex items-center border-l border-solid border-l-current px-4 py-0"
+      >
+        <span class="hero-cog" role="img" aria-label="Update settings"></span>
+      </.link>
     </header>
     """
   end
 
   attr :location, :atom, required: true
-  # TODO: Update to use Connection struct
-  attr :token, Token
+  attr :connection, WeatherStation.Connection, required: true
 
-  defp auth_or_connection(assigns) do
+  defp connection_status(assigns) do
     ~H"""
-    <%= if !is_nil(@token) do %>
-      <.icon name="hero-face-smile" />
-      <p>Connected: <%= @token.service %></p>
-    <% else %>
-      <.icon name="hero-face-frown" />
-      <.link navigate={~p"/authorize"}>
-        Authorize <%= @location |> to_string() |> String.capitalize() %> service
-      </.link>
-    <% end %>
+    <div
+      class="flex items-center gap-1"
+      role="img"
+      aria-label={"#{@location} status is #{@connection.status}"}
+    >
+      <span class="block">
+        <%= case @location do
+          :outdoor -> "🌳"
+          :indoor -> "🏠"
+        end %>
+      </span>
+      <span class={[
+        case @connection.status do
+          :pending -> "bg-yellow-300 animate-pulse"
+          :disconnected -> "bg-red-400"
+          :connected -> "bg-green-300"
+        end,
+        "block h-3 w-3 rounded-full"
+      ]}>
+      </span>
+    </div>
     """
   end
 

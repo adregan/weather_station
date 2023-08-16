@@ -18,7 +18,7 @@ defmodule WeatherStationWeb.Router do
   scope "/", WeatherStationWeb do
     pipe_through :browser
 
-    live_session :default, on_mount: [WeatherStationWeb.StationSession] do
+    live_session :default, on_mount: [WeatherStationWeb.StationConnection] do
       live "/", WeatherDisplayLive, :index
       live "/authorize", AuthorizeLive, :index
       live "/authorize/callback", AuthorizeLive, :authorize

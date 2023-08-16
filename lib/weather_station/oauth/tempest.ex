@@ -1,4 +1,4 @@
-defmodule WeatherStation.Tempest do
+defmodule WeatherStation.Oauth.Tempest do
   use WeatherStationWeb, :html
   alias Req
   require Logger

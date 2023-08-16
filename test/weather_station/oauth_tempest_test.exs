@@ -1,5 +1,5 @@
 defmodule WeatherStation.TempestTest do
-  alias WeatherStation.Tempest
+  alias WeatherStation.Oauth.Tempest
   use ExUnit.Case
 
   test "authorize_link produces valid oauth link parameters" do

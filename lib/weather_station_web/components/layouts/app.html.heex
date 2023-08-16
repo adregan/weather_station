@@ -1,5 +1,8 @@
 <section class="grid-rows-weather-station grid h-screen">
-  <.weather_station_header outdoor_token={@outdoor_token} indoor_token={@indoor_token} />
+  <.weather_station_header
+    outdoor_connection={@outdoor_connection}
+    indoor_connection={@indoor_connection}
+  />
   <main class="p-4">
     <%= @inner_content %>
   </main>

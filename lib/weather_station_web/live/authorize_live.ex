@@ -2,7 +2,7 @@ defmodule WeatherStationWeb.AuthorizeLive do
   use WeatherStationWeb, :live_view
 
   alias WeatherStation.Auth
-  alias WeatherStation.Tempest
+  alias WeatherStation.Oauth.Tempest
 
   require Logger
 
