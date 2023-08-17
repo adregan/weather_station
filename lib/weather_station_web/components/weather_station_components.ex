@@ -9,14 +9,14 @@ defmodule WeatherStationWeb.WeatherStationComponents do
     ~H"""
     <header class="grid-cols-[max-content_1fr_max-content_max-content] grid w-screen gap-x-4 border-b-2 border-current">
       <.link navigate={~p"/"} class="flex items-center px-4">WS</.link>
-      <div class="col-start-3 flex flex-col justify-center py-2">
+      <div class="col-start-3 flex items-center space-x-4 py-2">
         <.connection_status location={:outdoor} connection={@outdoor_connection} />
         <.connection_status location={:indoor} connection={@indoor_connection} />
       </div>
 
       <.link
         navigate={~p"/authorize"}
-        class="col-start-4 flex items-center border-l border-solid border-l-current px-4 py-0"
+        class="col-start-4 flex items-center border-l border-solid border-l-current px-2 py-0"
       >
         <span class="hero-cog" role="img" aria-label="Update settings"></span>
       </.link>
