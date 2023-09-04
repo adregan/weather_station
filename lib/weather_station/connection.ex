@@ -1,17 +1,21 @@
 defmodule WeatherStation.Connection do
+  alias WeatherStation.Auth.Token
+
+  @date_time_adapter if Mix.env() == :test,
+             do: WeatherStation.TestUtils.DateTime,
+             else: DateTime
+
   defstruct status: :disconnected, token: nil, last_connected: nil
 
   @type status :: :disconnected | :connected | :pending
 
   @type t :: %__MODULE__{
           status: status,
-          token:
-            WeatherStation.Auth.Token.t()
-            | nil,
+          token: Token.t() | nil,
           last_connected: DateTime.t() | nil
         }
 
-  def new(%WeatherStation.Auth.Token{} = token) do
+  def new(%Token{} = token) do
     %WeatherStation.Connection{
       status: :pending,
       token: token,
@@ -19,19 +23,13 @@ defmodule WeatherStation.Connection do
     }
   end
 
-  def new(nil), do: %WeatherStation.Connection{}
+  def new(nil), do: %WeatherStation.Connection{status: :disconnected}
 
-  def new, do: %WeatherStation.Connection{}
+  def new, do: %WeatherStation.Connection{status: :disconnected}
 
   def connect(%WeatherStation.Connection{} = connection) do
-    %{connection | status: :connected, last_connected: DateTime.now!("Etc/UTC")}
+    %{connection | status: :connected, last_connected: @date_time_adapter.utc_now()}
   end
 
-  def heart_beat(%WeatherStation.Connection{} = connection) do
-    %{connection | last_connected: DateTime.now!("Etc/UTC")}
-  end
-
-  def disconnect(_) do
-    WeatherStation.Connection.new()
-  end
+  def disconnect(%WeatherStation.Connection{}), do: new()
 end

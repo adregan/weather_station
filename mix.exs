@@ -19,7 +19,7 @@ defmodule WeatherStation.MixProject do
   def application do
     [
       mod: {WeatherStation.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :runtime_tools, :wx, :observer]
     ]
   end
 

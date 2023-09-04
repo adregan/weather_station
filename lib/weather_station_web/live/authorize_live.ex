@@ -9,7 +9,7 @@ defmodule WeatherStationWeb.AuthorizeLive do
   def render(assigns) do
     ~H"""
     <h2><%= gettext("Outdoor Sensors") %></h2>
-    <%= if is_nil(@outdoor_connection.token) do %>
+    <%= if @outdoor_connection.status == :disconnected do %>
       <ul>
         <li>
           <a href={Tempest.authorize_link()}>

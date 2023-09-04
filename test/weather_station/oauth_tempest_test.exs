@@ -1,6 +1,6 @@
 defmodule WeatherStation.TempestTest do
   alias WeatherStation.Oauth.Tempest
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   test "authorize_link produces valid oauth link parameters" do
     tempest = "https://tempestwx.com/authorize.html"
@@ -19,59 +19,20 @@ defmodule WeatherStation.TempestTest do
   end
 
   test "token request reports an error when request 404s" do
-    status_code = 404
-    messages = [%{message: "oh no"}, %{message: "not good"}]
-
-    {status, reason} = Tempest.access_token("124456899", error_adapter(status_code, messages))
+    {status, reason} = Tempest.access_token("ALWAYS_404")
     assert status == :error
-
-    assert reason ==
-             "Request failed with status: #{status_code}. Errors were: #{messages_to_string(messages)}"
+    assert reason == "Request failed with status: 404. Errors were: Not Found"
   end
 
   test "token request reports an error when request 401s" do
-    status_code = 401
-    messages = [%{message: "uh oh. Don't do that"}]
-
-    {status, reason} = Tempest.access_token("934893209", error_adapter(status_code, messages))
+    {status, reason} = Tempest.access_token("ALWAYS_401")
     assert status == :error
-
-    assert reason ==
-             "Request failed with status: #{status_code}. Errors were: #{messages_to_string(messages)}"
+    assert reason == "Request failed with status: 401. Errors were: Unauthorized"
   end
 
   test "token request returns the access token" do
-    access_token = "really-nice-token"
-
-    {status, token} = Tempest.access_token("wowwowowwowowow", success_adapter(access_token))
+    {status, token} = Tempest.access_token("123456789")
     assert status == :ok
-    assert token == access_token
-  end
-
-  defp error_adapter(status, messages) do
-    fn request ->
-      response =
-        %Req.Response{status: status}
-        |> Req.Response.json(%{errors: messages})
-
-      {request, response}
-    end
-  end
-
-  defp success_adapter(access_token) do
-    fn request ->
-      response =
-        %Req.Response{status: 200}
-        |> Req.Response.json(%{access_token: access_token})
-
-      {request, response}
-    end
-  end
-
-  defp messages_to_string(messages) do
-    for %{message: message} <- messages, into: [] do
-      message
-    end
-    |> Enum.join(" - ")
+    assert token == "THIS_IS_YOUR_ACCESS_TOKEN"
   end
 end

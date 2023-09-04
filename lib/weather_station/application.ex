@@ -17,9 +17,10 @@ defmodule WeatherStation.Application do
       # Start Finch
       {Finch, name: WeatherStation.Finch},
       # Start the Endpoint (http/https)
-      WeatherStationWeb.Endpoint
+      WeatherStationWeb.Endpoint,
       # Start a worker by calling: WeatherStation.Worker.start_link(arg)
       # {WeatherStation.Worker, arg}
+      WeatherStation.ObservationsSupervisor
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

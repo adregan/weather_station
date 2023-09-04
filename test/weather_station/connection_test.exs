@@ -1,5 +1,5 @@
 defmodule WeatherStation.ConnectionTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   alias WeatherStation.Connection
 
   @token %WeatherStation.Auth.Token{
@@ -23,15 +23,7 @@ defmodule WeatherStation.ConnectionTest do
       |> Connection.connect()
 
     assert connection.status == :connected
-    assert connection.last_connected != nil
-  end
-
-  test "heart_beat updates the last_connected time" do
-    connection =
-      Connection.new(@token)
-      |> Connection.connect()
-
-    assert Connection.heart_beat(connection).last_connected > connection.last_connected
+    assert connection.last_connected == WeatherStation.TestUtils.DateTime.utc_now()
   end
 
   test "disconnect returns a disconnected Connection" do

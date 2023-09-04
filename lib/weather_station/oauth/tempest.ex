@@ -6,6 +6,9 @@ defmodule WeatherStation.Oauth.Tempest do
   @tempest Req.new(base_url: "https://swd.weatherflow.com")
   @client_id Application.compile_env(:weather_station, :tempest_client_id)
   @client_secret Application.compile_env(:weather_station, :tempest_client_secret)
+  @req_adapter if Mix.env() == :test,
+                 do: &WeatherStation.Oauth.TestUtils.adapter/1,
+                 else: &Req.Steps.run_finch/1
 
   def authorize_link() do
     params = %{
@@ -18,9 +21,9 @@ defmodule WeatherStation.Oauth.Tempest do
     "https://tempestwx.com/authorize.html?#{URI.encode_query(params)}"
   end
 
-  def access_token(code, adapter \\ &Req.Steps.run_finch/1) do
+  def access_token(code) do
     Req.post(@tempest,
-      adapter: adapter,
+      adapter: @req_adapter,
       url: "/id/oauth2/token",
       form: %{
         grant_type: "authorization_code",
