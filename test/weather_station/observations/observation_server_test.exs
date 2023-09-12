@@ -1,4 +1,4 @@
-defmodule WeatherStation.ObservationServerTest do
+defmodule WeatherStation.Observations.ObservationServerTest do
   use ExUnit.Case, async: true
   alias WeatherStation.Observations.ObservationServer
   alias WeatherStation.Auth.Token

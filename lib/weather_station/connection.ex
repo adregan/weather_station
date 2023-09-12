@@ -31,5 +31,7 @@ defmodule WeatherStation.Connection do
     %{connection | status: :connected, last_connected: @date_time_adapter.utc_now()}
   end
 
-  def disconnect(%WeatherStation.Connection{}), do: new()
+  def disconnect(%WeatherStation.Connection{} = connection) do
+    %{connection | status: :disconnected}
+  end
 end

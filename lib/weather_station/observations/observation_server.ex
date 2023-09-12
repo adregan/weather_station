@@ -12,26 +12,33 @@ defmodule WeatherStation.Observations.ObservationServer do
   defmodule State do
     defstruct observations: %{}, refreshes: %{}
 
-    def update(%State{} = state, path, data) do
+    def write_key(path, location) when is_list(path) do
+      # Appending the location to the last path element prevents clobbering the data in state
+      path |> List.update_at(-1, &(&1 <> ":#{location}"))
+    end
+
+    def update(%State{} = state, location, path, data) do
       path
+      |> write_key(location)
       |> Enum.map(&Access.key/1)
       |> (&put_in(state, &1, data)).()
     end
 
-    def get(%State{} = state, path) do
+    def get(%State{} = state, location, path) do
       path
+      |> write_key(location)
       |> Enum.map(&Access.key/1)
       |> (&get_in(state, &1)).()
     end
 
-    def cached_or_update_with(%State{} = state, path, fun) do
+    def cached_or_update_with(%State{} = state, location, path, fun) do
       value =
-        case State.get(state, path) do
+        case State.get(state, location, path) do
           nil -> fun.()
           cached -> cached
         end
 
-      State.update(state, path, value)
+      State.update(state, location, path, value)
     end
   end
 
@@ -54,30 +61,42 @@ defmodule WeatherStation.Observations.ObservationServer do
     {:ok, init_arg}
   end
 
-  def handle_call({:latest_observations, %Token{user_id: user_id} = token}, _, state) do
+  def handle_call(
+        {:latest_observations, %Token{user_id: user_id, location: location} = token},
+        _,
+        state
+      ) do
     state =
       state
-      |> State.cached_or_update_with([:observations, user_id], fn ->
+      |> State.cached_or_update_with(location, [:observations, user_id], fn ->
         fetch_observations(token)
       end)
-      |> State.cached_or_update_with([:refreshes, user_id], fn ->
+      |> State.cached_or_update_with(location, [:refreshes, user_id], fn ->
         schedule_refresh(token)
       end)
 
-    observations = State.get(state, [:observations, user_id])
+    observations = State.get(state, location, [:observations, user_id])
 
     broadcast(:observations, user_id, observations)
 
     {:reply, observations, state}
   end
 
-  def handle_info({:refresh, %Token{user_id: user_id} = token}, state) do
+  def handle_info({:refresh, %Token{user_id: user_id, location: location} = token}, state) do
     state
-    |> State.update([:observations, user_id], fetch_observations(token))
+    |> State.update(location, [:observations, user_id], fetch_observations(token))
     |> tap(fn state ->
-      broadcast(:observations, user_id, State.get(state, [:observations, user_id]))
+      broadcast(
+        :observations,
+        user_id,
+        State.get(state, location, [:observations, user_id])
+      )
     end)
-    |> State.update([:refreshes, user_id], schedule_refresh(token))
+    |> State.update(
+      location,
+      [:refreshes, user_id],
+      schedule_refresh(token)
+    )
     |> then(&{:noreply, &1})
   end
 
@@ -87,8 +106,8 @@ defmodule WeatherStation.Observations.ObservationServer do
   end
 
   # TODO: Move pub sub code to context module
-  defp broadcast(:observations, user_id, data) do
-    Phoenix.PubSub.broadcast(@pubsub, @topic, {:observations_updated, user_id, data})
+  defp broadcast(:observations, user_id, observations) do
+    Phoenix.PubSub.broadcast(@pubsub, @topic, {:observations_updated, user_id, observations})
   end
 
   defp fetch_observations(%Token{} = token) do

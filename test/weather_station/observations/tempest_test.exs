@@ -30,7 +30,12 @@ defmodule WeatherStation.Observations.TempestTest do
     }
 
     assert Tempest.fetch_observations(token) ==
-             {:error, "Something went wrong getting the station id."}
+             {:error,
+              %{
+                service: :tempest,
+                location: :outdoor,
+                error_code: :error_station_id
+              }}
   end
 
   test "when getting observations fails, an error is returned" do
@@ -42,6 +47,11 @@ defmodule WeatherStation.Observations.TempestTest do
     }
 
     assert Tempest.fetch_observations(token) ==
-             {:error, "Something went wrong getting observations from the station."}
+             {:error,
+              %{
+                service: :tempest,
+                location: :outdoor,
+                error_code: :error_observation
+              }}
   end
 end
