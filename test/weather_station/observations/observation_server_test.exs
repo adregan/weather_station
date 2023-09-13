@@ -16,7 +16,7 @@ defmodule WeatherStation.Observations.ObservationServerTest do
         token: Faker.UUID.v4(),
         user_id: Faker.UUID.v4()
       }
-      |> ObservationServer.latest_observations()
+      |> ObservationServer.latest_observation()
 
     assert observations ==
              {:ok,

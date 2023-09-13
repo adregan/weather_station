@@ -6,7 +6,7 @@ defmodule WeatherStationWeb.WeatherDisplayLive do
 
   def render(assigns) do
     ~H"""
-    <p><%= inspect(@observations) %></p>
+    <p><%= inspect(@observation) %></p>
     """
   end
 
@@ -16,9 +16,9 @@ defmodule WeatherStationWeb.WeatherDisplayLive do
     end
 
     %{ token: token } = socket.assigns.outdoor_connection
-    observations = ObservationServer.latest_observations(token)
+    observation = ObservationServer.latest_observation(token)
 
-    {:ok, update_with_observations(socket, observations)}
+    {:ok, update_observation(socket, observation)}
   end
 
   def handle_params(_, _, socket) do
@@ -26,10 +26,10 @@ defmodule WeatherStationWeb.WeatherDisplayLive do
   end
 
   def handle_info(
-        {:observations_updated, user_id, observations},
+        {:new_observation, user_id, observation},
         %{assigns: %{user_id: user_id}} = socket
       ) do
-    {:noreply, update_with_observations(socket, observations)}
+    {:noreply, update_observation(socket, observation)}
   end
 
   def handle_info(msg, socket) do
@@ -37,10 +37,10 @@ defmodule WeatherStationWeb.WeatherDisplayLive do
     {:noreply, socket}
   end
 
-  defp update_with_observations(socket, observations) do
+  defp update_observation(socket, observation) do
     socket
-    |> assign(:observations, observations)
-    |> update_connection(observations)
+    |> assign(:observation, observation)
+    |> update_connection(observation)
   end
 
   defp update_connection(socket, {:ok, %{location: location}}) do
