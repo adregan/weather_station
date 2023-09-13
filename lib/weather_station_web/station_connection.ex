@@ -1,5 +1,6 @@
 defmodule WeatherStationWeb.StationConnection do
   import Phoenix.Component
+  alias WeatherStation.ConnectionServer
   alias WeatherStation.Auth
   alias WeatherStation.Accounts
 
@@ -11,15 +12,14 @@ defmodule WeatherStationWeb.StationConnection do
 
     tokens = user |> Auth.list_tokens_by_user()
 
+    outdoor_token = tokens |> Enum.find(&is_outdoor_token?/1)
+    indoor_token = tokens |> Enum.find(&is_indoor_token?/1)
+
     outdoor_connection =
-      tokens
-      |> Enum.find(&is_outdoor_token?/1)
-      |> WeatherStation.Connection.new()
+      ConnectionServer.get_connection(outdoor_token, user.id, :outdoor)
 
     indoor_connection =
-      tokens
-      |> Enum.find(&is_indoor_token?/1)
-      |> WeatherStation.Connection.new()
+      ConnectionServer.get_connection(indoor_token, user.id, :indoor)
 
     socket =
       socket

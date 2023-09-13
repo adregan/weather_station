@@ -37,4 +37,12 @@ defmodule WeatherStation.ConnectionTest do
              last_connected: ~U[2023-08-23 13:33:34Z]
            }
   end
+
+  test "degrade returns a degraded Connection" do
+    connection =
+      Connection.new(@token)
+      |> Connection.connect()
+
+    assert Connection.degrade(connection) == %Connection{connection | status: :degraded}
+  end
 end

@@ -7,7 +7,7 @@ defmodule WeatherStation.Connection do
 
   defstruct status: :disconnected, token: nil, last_connected: nil
 
-  @type status :: :disconnected | :connected | :pending
+  @type status :: :disconnected | :connected | :pending | :degraded
 
   @type t :: %__MODULE__{
           status: status,
@@ -31,7 +31,9 @@ defmodule WeatherStation.Connection do
     %{connection | status: :connected, last_connected: @date_time_adapter.utc_now()}
   end
 
-  def disconnect(%WeatherStation.Connection{} = connection) do
-    %{connection | status: :disconnected}
+  def disconnect(_), do: new()
+
+  def degrade(%WeatherStation.Connection{} = connection) do
+    %{connection | status: :degraded}
   end
 end

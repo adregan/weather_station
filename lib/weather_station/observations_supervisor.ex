@@ -11,7 +11,7 @@ defmodule WeatherStation.ObservationsSupervisor do
     children =
       case Mix.env() do
         :test -> []
-        _ -> [WeatherStation.Observations.ObservationServer]
+        _ -> [WeatherStation.Observations.ObservationServer, WeatherStation.ConnectionServer]
       end
 
     Supervisor.init(children, strategy: :one_for_one)

@@ -28,6 +28,8 @@ defmodule WeatherStation.Observations.ObservationServer do
     end
   end
 
+  def latest_observation(nil), do: nil
+
   # Server
   def init(refresh_refs) do
     :ets.new(@table_name, [:named_table])
@@ -84,5 +86,5 @@ defmodule WeatherStation.Observations.ObservationServer do
     end
   end
 
-  defp storage_key(user_id, location), do: user_id <> to_string(location)
+  defp storage_key(user_id, location), do: user_id <> ":#{location}"
 end

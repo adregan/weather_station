@@ -1,4 +1,5 @@
 defmodule WeatherStationWeb.AuthorizeLive do
+  alias WeatherStation.ConnectionServer
   use WeatherStationWeb, :live_view
 
   alias WeatherStation.Auth
@@ -50,7 +51,7 @@ defmodule WeatherStationWeb.AuthorizeLive do
         socket =
           socket
           |> put_flash(:info, "Successfully authorized Tempest")
-          |> assign(:outdoor_token, outdoor_token)
+          |> assign(:outdoor_connection, ConnectionServer.create(outdoor_token))
           |> push_patch(to: ~p"/authorize")
 
         {:noreply, socket}
@@ -88,7 +89,7 @@ defmodule WeatherStationWeb.AuthorizeLive do
 
     {:ok, _} = outdoor_connection.token |> Auth.delete_token()
 
-    outdoor_connection = outdoor_connection |> WeatherStation.Connection.disconnect()
+    outdoor_connection = ConnectionServer.update(outdoor_connection, :disconnect)
 
     {:noreply, assign(socket, :outdoor_connection, outdoor_connection)}
   end
