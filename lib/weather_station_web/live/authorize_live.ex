@@ -2,7 +2,7 @@ defmodule WeatherStationWeb.AuthorizeLive do
   alias WeatherStation.ConnectionServer
   use WeatherStationWeb, :live_view
 
-  alias WeatherStation.Auth
+  alias WeatherStation.Oauth
   alias WeatherStation.Oauth.Tempest
 
   require Logger
@@ -39,7 +39,7 @@ defmodule WeatherStationWeb.AuthorizeLive do
         %{user_id: user_id} = socket.assigns
 
         {:ok, outdoor_token} =
-          Auth.create_token(%{
+          Oauth.create_token(%{
             user_id: user_id,
             token: token,
             service: :tempest,
@@ -87,7 +87,7 @@ defmodule WeatherStationWeb.AuthorizeLive do
   def handle_event("unauthorize-outdoor", _, socket) do
     %{outdoor_connection: outdoor_connection} = socket.assigns
 
-    {:ok, _} = outdoor_connection.token |> Auth.delete_token()
+    {:ok, _} = outdoor_connection.token |> Oauth.delete_token()
 
     outdoor_connection = ConnectionServer.update(outdoor_connection, :disconnect)
 

@@ -1,7 +1,7 @@
 defmodule WeatherStationWeb.WeatherDisplayLive do
   require Logger
   use WeatherStationWeb, :live_view
-  alias WeatherStation.ObservationServer
+  alias WeatherStation.Observations
   alias WeatherStation.ConnectionServer
 
   def render(assigns) do
@@ -12,11 +12,11 @@ defmodule WeatherStationWeb.WeatherDisplayLive do
 
   def mount(_params, _session, socket) do
     if connected?(socket) do
-      ObservationServer.subscribe()
+      Observations.subscribe()
     end
 
     %{token: token} = socket.assigns.outdoor_connection
-    observation = ObservationServer.latest_observation(token)
+    observation = if token, do: Observations.get_observation(token), else: nil
 
     {:ok, update_observation(socket, observation)}
   end
@@ -26,10 +26,17 @@ defmodule WeatherStationWeb.WeatherDisplayLive do
   end
 
   def handle_info(
-        {:new_observation, user_id, observation},
+        {:observation_created, user_id, observation},
         %{assigns: %{user_id: user_id}} = socket
       ) do
     {:noreply, update_observation(socket, observation)}
+  end
+
+  def handle_info(
+        {:observation_errored, user_id, error},
+        %{assigns: %{user_id: user_id}} = socket
+      ) do
+    {:noreply, update_observation(socket, error)}
   end
 
   def handle_info(msg, socket) do
