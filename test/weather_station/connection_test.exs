@@ -33,8 +33,8 @@ defmodule WeatherStation.ConnectionTest do
 
     assert Connection.disconnect(connection) == %Connection{
              status: :disconnected,
-             token: @token,
-             last_connected: ~U[2023-08-23 13:33:34Z]
+             token: nil,
+             last_connected: nil
            }
   end
 
