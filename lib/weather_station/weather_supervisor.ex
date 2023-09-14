@@ -1,4 +1,4 @@
-defmodule WeatherStation.ObservationsSupervisor do
+defmodule WeatherStation.WeatherSupervisor do
   use Supervisor
   require Logger
 
@@ -11,7 +11,7 @@ defmodule WeatherStation.ObservationsSupervisor do
     children =
       case Mix.env() do
         :test -> []
-        _ -> [WeatherStation.Observations.ObservationServer, WeatherStation.ConnectionServer]
+        _ -> [WeatherStation.ObservationServer, WeatherStation.ConnectionServer]
       end
 
     Supervisor.init(children, strategy: :one_for_one)
