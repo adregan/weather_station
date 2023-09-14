@@ -8,6 +8,19 @@ defmodule WeatherStation.Oauth do
 
   alias WeatherStation.Oauth.Token
 
+  @topic inspect(__MODULE__)
+
+  def subscribe do
+    Phoenix.PubSub.subscribe(WeatherStation.PubSub, @topic)
+  end
+
+  def broadcast({:ok, token}, tag) do
+    Phoenix.PubSub.broadcast(WeatherStation.PubSub, @topic, {tag, token})
+    {:ok, token}
+  end
+
+  def broadcast({:error, _} = error, _), do: error
+
   @doc """
   Returns the list of tokens.
 
@@ -62,6 +75,7 @@ defmodule WeatherStation.Oauth do
     %Token{}
     |> Token.changeset(attrs)
     |> Repo.insert()
+    |> broadcast(:token_created)
   end
 
   @doc """
@@ -80,6 +94,7 @@ defmodule WeatherStation.Oauth do
     token
     |> Token.changeset(attrs)
     |> Repo.update()
+    |> broadcast(:token_updated)
   end
 
   @doc """
@@ -96,6 +111,7 @@ defmodule WeatherStation.Oauth do
   """
   def delete_token(%Token{} = token) do
     Repo.delete(token)
+    |> broadcast(:token_deleted)
   end
 
   @doc """
