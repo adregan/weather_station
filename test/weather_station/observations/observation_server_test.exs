@@ -1,7 +1,7 @@
 defmodule WeatherStation.Observations.ObservationServerTest do
   use ExUnit.Case, async: true
   alias WeatherStation.Observations.ObservationServer
-  alias WeatherStation.Auth.Token
+  alias WeatherStation.Oauth.Token
 
   setup do
     start_supervised!(WeatherStation.Observations.ObservationServer)

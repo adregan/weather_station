@@ -1,7 +1,7 @@
-defmodule WeatherStation.AuthFixtures do
+defmodule WeatherStation.OauthFixtures do
   @moduledoc """
   This module defines test helpers for creating
-  entities via the `WeatherStation.Auth` context.
+  entities via the `WeatherStation.Oauth` context.
   """
 
   @doc """
@@ -18,7 +18,7 @@ defmodule WeatherStation.AuthFixtures do
         location: Enum.random([:indoor, :outdoor]),
         user_id: user.id
       })
-      |> WeatherStation.Auth.create_token()
+      |> WeatherStation.Oauth.create_token()
 
     token
   end

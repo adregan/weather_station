@@ -1,7 +1,7 @@
 defmodule WeatherStationWeb.StationConnection do
   import Phoenix.Component
   alias WeatherStation.ConnectionServer
-  alias WeatherStation.Auth
+  alias WeatherStation.Oauth
   alias WeatherStation.Accounts
 
   def on_mount(:default, _params, session, socket) do
@@ -10,7 +10,7 @@ defmodule WeatherStationWeb.StationConnection do
       |> Map.get("session_key")
       |> Accounts.get_user_by_session_key()
 
-    tokens = user |> Auth.list_tokens_by_user()
+    tokens = user |> Oauth.list_tokens_by_user()
 
     outdoor_token = tokens |> Enum.find(&is_outdoor_token?/1)
     indoor_token = tokens |> Enum.find(&is_indoor_token?/1)
@@ -31,6 +31,6 @@ defmodule WeatherStationWeb.StationConnection do
     {:cont, socket}
   end
 
-  defp is_indoor_token?(%Auth.Token{location: location}), do: location == :indoor
-  defp is_outdoor_token?(%Auth.Token{location: location}), do: location == :outdoor
+  defp is_indoor_token?(%Oauth.Token{location: location}), do: location == :indoor
+  defp is_outdoor_token?(%Oauth.Token{location: location}), do: location == :outdoor
 end

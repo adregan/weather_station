@@ -1,12 +1,12 @@
-defmodule WeatherStation.Auth do
+defmodule WeatherStation.Oauth do
   @moduledoc """
-  The Auth context.
+  The Oauth context.
   """
 
   import Ecto.Query, warn: false
   alias WeatherStation.Repo
 
-  alias WeatherStation.Auth.Token
+  alias WeatherStation.Oauth.Token
 
   @doc """
   Returns the list of tokens.

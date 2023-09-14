@@ -1,7 +1,7 @@
 defmodule WeatherStation.Observations.ObservationServer do
   use GenServer
   require Logger
-  alias WeatherStation.Auth.Token
+  alias WeatherStation.Oauth.Token
   alias WeatherStation.Observations.Tempest
 
   @server_name :observations

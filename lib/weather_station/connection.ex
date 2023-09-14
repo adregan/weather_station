@@ -1,5 +1,5 @@
 defmodule WeatherStation.Connection do
-  alias WeatherStation.Auth.Token
+  alias WeatherStation.Oauth.Token
 
   @date_time_adapter if Mix.env() == :test,
              do: WeatherStation.TestUtils.DateTime,

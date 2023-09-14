@@ -1,7 +1,7 @@
 defmodule WeatherStation.ConnectionServer do
   use GenServer
   alias WeatherStation.Connection
-  alias WeatherStation.Auth.Token
+  alias WeatherStation.Oauth.Token
 
   @server_name :connection_server
   @table_name :connections_table

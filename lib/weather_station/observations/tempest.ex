@@ -3,7 +3,7 @@ defmodule WeatherStation.Observations.Tempest do
 
   alias Req
   alias WeatherStation.Observations.Observation
-  alias WeatherStation.Auth.Token
+  alias WeatherStation.Oauth.Token
 
   @tempest_rest Req.new(base_url: "https://swd.weatherflow.com/swd/rest")
   @adapter if Mix.env() == :test,

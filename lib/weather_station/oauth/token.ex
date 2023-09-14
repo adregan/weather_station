@@ -1,4 +1,4 @@
-defmodule WeatherStation.Auth.Token do
+defmodule WeatherStation.Oauth.Token do
   use Ecto.Schema
   import Ecto.Changeset
 

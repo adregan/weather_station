@@ -3,7 +3,7 @@ defmodule WeatherStation.Observations.TempestTest do
   alias WeatherStation.Observations.Tempest
 
   test "when given a working token, fetch_observations returns the latest observations" do
-    token = %WeatherStation.Auth.Token{
+    token = %WeatherStation.Oauth.Token{
       service: :tempest,
       location: :outdoor,
       user_id: Faker.UUID.v4(),
@@ -22,7 +22,7 @@ defmodule WeatherStation.Observations.TempestTest do
   end
 
   test "when getting the station id fails, an error is returned" do
-    token = %WeatherStation.Auth.Token{
+    token = %WeatherStation.Oauth.Token{
       service: :tempest,
       location: :outdoor,
       user_id: Faker.UUID.v4(),
@@ -39,7 +39,7 @@ defmodule WeatherStation.Observations.TempestTest do
   end
 
   test "when getting observations fails, an error is returned" do
-    token = %WeatherStation.Auth.Token{
+    token = %WeatherStation.Oauth.Token{
       service: :tempest,
       location: :outdoor,
       user_id: Faker.UUID.v4(),

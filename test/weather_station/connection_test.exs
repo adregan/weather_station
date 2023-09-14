@@ -2,7 +2,7 @@ defmodule WeatherStation.ConnectionTest do
   use ExUnit.Case, async: true
   alias WeatherStation.Connection
 
-  @token %WeatherStation.Auth.Token{
+  @token %WeatherStation.Oauth.Token{
     user_id: Faker.UUID.v4(),
     token: Faker.UUID.v4(),
     location: :outdoor,
