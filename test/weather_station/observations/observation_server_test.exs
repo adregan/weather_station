@@ -1,10 +1,10 @@
-defmodule WeatherStation.Observations.ObservationServerTest do
+defmodule WeatherStation.ObservationServerTest do
   use ExUnit.Case, async: true
-  alias WeatherStation.Observations.ObservationServer
+  alias WeatherStation.ObservationServer
   alias WeatherStation.Oauth.Token
 
   setup do
-    start_supervised!(WeatherStation.Observations.ObservationServer)
+    start_supervised!(WeatherStation.ObservationServer)
     :ok
   end
 

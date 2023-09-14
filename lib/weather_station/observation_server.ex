@@ -1,4 +1,4 @@
-defmodule WeatherStation.Observations.ObservationServer do
+defmodule WeatherStation.ObservationServer do
   use GenServer
   require Logger
   alias WeatherStation.Oauth.Token

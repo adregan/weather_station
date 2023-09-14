@@ -1,7 +1,7 @@
 defmodule WeatherStationWeb.WeatherDisplayLive do
   require Logger
   use WeatherStationWeb, :live_view
-  alias WeatherStation.Observations.ObservationServer
+  alias WeatherStation.ObservationServer
   alias WeatherStation.ConnectionServer
 
   def render(assigns) do
