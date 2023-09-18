@@ -20,7 +20,8 @@ defmodule WeatherStation.Application do
       WeatherStationWeb.Endpoint,
       # Start a worker by calling: WeatherStation.Worker.start_link(arg)
       # {WeatherStation.Worker, arg}
-      WeatherStation.WeatherSupervisor
+      WeatherStation.WeatherSupervisor,
+      {Oban, Application.fetch_env!(:weather_station, Oban)}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

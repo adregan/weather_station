@@ -76,7 +76,15 @@ defmodule WeatherStation.Oauth do
     |> Token.changeset(attrs)
     |> Repo.insert()
     |> broadcast(:token_created)
+    |> enqueue_observation_job()
   end
+
+  defp enqueue_observation_job({:ok, token}) do
+    WeatherStation.Workers.RefreshObservation.enqueue(token)
+    {:ok, token}
+  end
+
+  defp enqueue_observation_job({:error, _} = error), do: error
 
   @doc """
   Updates a token.
@@ -112,7 +120,15 @@ defmodule WeatherStation.Oauth do
   def delete_token(%Token{} = token) do
     Repo.delete(token)
     |> broadcast(:token_deleted)
+    |> dequeue_observation_job()
   end
+
+  def dequeue_observation_job({:ok, token}) do
+    WeatherStation.Workers.RefreshObservation.dequeue(token)
+    {:ok, token}
+  end
+
+  def dequeue_observation_job({:error, _} = error), do: error
 
   @doc """
   Returns an `%Ecto.Changeset{}` for tracking token changes.

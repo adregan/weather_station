@@ -52,7 +52,8 @@ defmodule WeatherStation.MixProject do
       {:plug_cowboy, "~> 2.5"},
       {:req, "~> 0.3.0"},
       {:tailwind_formatter, "~> 0.3.7", only: [:dev, :test], runtime: false},
-      {:faker, "~> 0.17", only: :test}
+      {:faker, "~> 0.17", only: :test},
+      {:oban, "~> 2.15"}
     ]
   end
 

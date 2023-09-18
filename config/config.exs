@@ -29,6 +29,11 @@ config :weather_station, WeatherStationWeb.Endpoint,
 # at the `config/runtime.exs`.
 config :weather_station, WeatherStation.Mailer, adapter: Swoosh.Adapters.Local
 
+config :weather_station, Oban,
+  repo: WeatherStation.Repo,
+  plugins: [Oban.Plugins.Pruner],
+  queues: [default: 10, observations: 10]
+
 # Configure esbuild (the version is required)
 config :esbuild,
   version: "0.17.11",

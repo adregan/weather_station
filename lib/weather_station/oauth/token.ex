@@ -1,4 +1,6 @@
 defmodule WeatherStation.Oauth.Token do
+  @derive {Jason.Encoder, only: [:token, :user_id, :service, :location]}
+
   use Ecto.Schema
   import Ecto.Changeset
 
