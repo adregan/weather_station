@@ -27,6 +27,8 @@ config :weather_station, WeatherStation.Mailer, adapter: Swoosh.Adapters.Test
 
 config :weather_station, clock: WeatherStation.Test.Support.TimeTravelingClock
 
+config :weather_station, Req.Request, adapter: &WeatherStation.Test.Support.ReqAdapter.adapter/1
+
 # Disable swoosh api client as it is only required for production adapters.
 config :swoosh, :api_client, false
 

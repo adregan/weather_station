@@ -6,9 +6,7 @@ defmodule WeatherStation.Observations.Tempest do
   alias WeatherStation.Oauth.Token
 
   @tempest_rest Req.new(base_url: "https://swd.weatherflow.com/swd/rest")
-  @adapter if Mix.env() == :test,
-             do: &WeatherStation.Observations.TestUtils.adapter/1,
-             else: &Req.Steps.run_finch/1
+  @adapter Application.compile_env(:weather_station, Req.Request) |> Keyword.get(:adapter)
 
   def fetch_observations(%Token{} = token) do
     with {:ok, station_id} <- station_id(token),

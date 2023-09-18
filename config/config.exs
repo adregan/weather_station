@@ -22,6 +22,8 @@ config :weather_station, WeatherStationWeb.Endpoint,
   pubsub_server: WeatherStation.PubSub,
   live_view: [signing_salt: "jyOQF0SC"]
 
+config :weather_station, Req.Request, adapter: &Req.Steps.run_finch/1
+
 # Configures the mailer
 #
 # By default it uses the "Local" adapter which stores the emails
@@ -31,6 +33,7 @@ config :weather_station, WeatherStationWeb.Endpoint,
 # at the `config/runtime.exs`.
 config :weather_station, WeatherStation.Mailer, adapter: Swoosh.Adapters.Local
 
+# Configures the clock to allow for mocking in tests
 config :weather_station, clock: DateTime
 
 config :weather_station, Oban,
