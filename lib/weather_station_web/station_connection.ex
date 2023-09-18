@@ -21,8 +21,7 @@ defmodule WeatherStationWeb.StationConnection do
 
     socket =
       socket
-      |> assign_new(:user_id, fn -> user.id end)
-      |> assign_new(:auth_code, fn -> user.auth_code end)
+      |> assign_new(:user, fn -> user end)
       |> assign_new(:outdoor_connection, fn -> outdoor_connection end)
       |> assign_new(:indoor_connection, fn -> indoor_connection end)
 

@@ -1,4 +1,5 @@
 defmodule WeatherStationWeb.AuthorizeLive do
+  alias WeatherStation.Accounts.User
   alias WeatherStation.ConnectionServer
   use WeatherStationWeb, :live_view
 
@@ -36,7 +37,7 @@ defmodule WeatherStationWeb.AuthorizeLive do
   def handle_params(%{"code" => code, "state" => "outdoor:tempest"}, _uri, socket) do
     case Tempest.access_token(code) do
       {:ok, token} ->
-        %{user_id: user_id} = socket.assigns
+        %{user: %User{id: user_id}} = socket.assigns
 
         {:ok, outdoor_token} =
           Oauth.create_token(%{

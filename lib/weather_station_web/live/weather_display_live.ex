@@ -1,5 +1,6 @@
 defmodule WeatherStationWeb.WeatherDisplayLive do
   require Logger
+  alias WeatherStation.Accounts.User
   use WeatherStationWeb, :live_view
   alias WeatherStation.Observations
   alias WeatherStation.ConnectionServer
@@ -27,14 +28,14 @@ defmodule WeatherStationWeb.WeatherDisplayLive do
 
   def handle_info(
         {:observation_created, user_id, observation},
-        %{assigns: %{user_id: user_id}} = socket
+        %{assigns: %{user: %User{id: user_id}}} = socket
       ) do
     {:noreply, update_observation(socket, observation)}
   end
 
   def handle_info(
         {:observation_errored, user_id, error},
-        %{assigns: %{user_id: user_id}} = socket
+        %{assigns: %{user: %User{id: user_id}}} = socket
       ) do
     {:noreply, update_observation(socket, error)}
   end
