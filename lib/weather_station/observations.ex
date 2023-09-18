@@ -50,6 +50,8 @@ defmodule WeatherStation.Observations do
     end
   end
 
+  def get_observation(nil), do: nil
+
   defp fetch_observation(%Token{service: service} = token) do
     case service do
       :tempest ->
