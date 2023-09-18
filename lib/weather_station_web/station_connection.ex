@@ -1,6 +1,5 @@
 defmodule WeatherStationWeb.StationConnection do
   import Phoenix.Component
-  import WeatherStation.Connection, only: [connection_status: 2]
 
   alias WeatherStation.Observations
   alias WeatherStation.Oauth

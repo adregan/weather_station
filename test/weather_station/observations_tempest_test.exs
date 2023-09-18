@@ -2,7 +2,15 @@ defmodule WeatherStation.Observations.TempestTest do
   use ExUnit.Case, async: true
   alias WeatherStation.Observations.Tempest
 
+  @clock Application.compile_env(:weather_station, :clock)
+
+  setup do
+    on_exit(:unfreeze_time, fn -> @clock.unfreeze() end)
+  end
+
   test "when given a working token, fetch_observations returns the latest observations" do
+    @clock.freeze()
+
     token = %WeatherStation.Oauth.Token{
       service: :tempest,
       location: :outdoor,
@@ -17,7 +25,7 @@ defmodule WeatherStation.Observations.TempestTest do
                 humidity: 77,
                 feels_like: 21.4,
                 location: :outdoor,
-                accessed_at: WeatherStation.TestUtils.DateTime.utc_now()
+                accessed_at: @clock.utc_now()
               }}
   end
 

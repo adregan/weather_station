@@ -31,6 +31,8 @@ config :weather_station, WeatherStationWeb.Endpoint,
 # at the `config/runtime.exs`.
 config :weather_station, WeatherStation.Mailer, adapter: Swoosh.Adapters.Local
 
+config :weather_station, clock: DateTime
+
 config :weather_station, Oban,
   repo: WeatherStation.Repo,
   plugins: [Oban.Plugins.Pruner],

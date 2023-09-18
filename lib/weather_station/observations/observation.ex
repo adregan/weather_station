@@ -1,7 +1,5 @@
 defmodule WeatherStation.Observations.Observation do
-  @date_time_adapter if Mix.env() == :test,
-                       do: WeatherStation.TestUtils.DateTime,
-                       else: DateTime
+  @clock Application.compile_env(:weather_station, :clock)
 
   defstruct temperature: nil,
             humidity: nil,
@@ -20,7 +18,7 @@ defmodule WeatherStation.Observations.Observation do
 
   def new(attrs \\ %{}) do
     %WeatherStation.Observations.Observation{
-      accessed_at: @date_time_adapter.utc_now(),
+      accessed_at: @clock.utc_now(),
       location: Map.get(attrs, :location),
       temperature: Map.get(attrs, :temperature),
       feels_like: Map.get(attrs, :feels_like),

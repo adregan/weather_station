@@ -1,6 +1,10 @@
 defmodule WeatherStation.ConnectionTest do
   use ExUnit.Case, async: true
-  alias WeatherStation.Connection
+  import WeatherStation.Connection, only: [connection_status: 2]
+  alias WeatherStation.Observations.Observation
+
+  @clock Application.compile_env(:weather_station, :clock)
+  @refresh_rate Application.compile_env(:weather_station, :refresh_rate_in_seconds)
 
   @token %WeatherStation.Oauth.Token{
     user_id: Faker.UUID.v4(),
@@ -9,40 +13,65 @@ defmodule WeatherStation.ConnectionTest do
     service: :tempest
   }
 
-  test "new with a nil token returns a disconnected connection" do
-    assert Connection.new(nil) == %Connection{status: :disconnected}
+  setup do
+    on_exit(:unfreeze_time, fn -> @clock.unfreeze() end)
   end
 
-  test "new with a token returns a pending connection" do
-    assert Connection.new(@token) == %Connection{status: :pending, token: @token}
+  test "connection_status called with a nil token returns :disconnected" do
+    token = nil
+    assert connection_status(token, nil) == :disconnected
   end
 
-  test "connect adds last_connected time and updates status" do
-    connection =
-      Connection.new(@token)
-      |> Connection.connect()
-
-    assert connection.status == :connected
-    assert connection.last_connected == WeatherStation.TestUtils.DateTime.utc_now()
+  test "connection_status called with a nil observation returns :pending" do
+    assert connection_status(@token, nil) == :pending
   end
 
-  test "disconnect returns a disconnected Connection" do
-    connection =
-      Connection.new(@token)
-      |> Connection.connect()
-
-    assert Connection.disconnect(connection) == %Connection{
-             status: :disconnected,
-             token: nil,
-             last_connected: nil
-           }
+  test "connection_status called with an errored observation returns :disconnected" do
+    assert connection_status(@token, {:error, %{}}) == :disconnected
   end
 
-  test "degrade returns a degraded Connection" do
-    connection =
-      Connection.new(@token)
-      |> Connection.connect()
+  test "connection_status with an observation more recent than refresh_rate is :connected" do
+    observation_time = DateTime.utc_now()
+    observation = %Observation{
+      temperature: 16.6,
+      humidity: 96,
+      feels_like: 16.6,
+      location: :outdoor,
+      accessed_at: observation_time
+    }
 
-    assert Connection.degrade(connection) == %Connection{connection | status: :degraded}
+    @clock.freeze(DateTime.add(observation_time, @refresh_rate - 2, :second))
+
+    assert connection_status(@token, {:ok, observation}) == :connected
+  end
+
+  test "connection_status called with a less recent observation returns :degraded" do
+    observation_time = DateTime.utc_now()
+    observation = %Observation{
+      temperature: 16.6,
+      humidity: 96,
+      feels_like: 16.6,
+      location: :outdoor,
+      accessed_at: observation_time
+    }
+
+    @clock.freeze(DateTime.add(observation_time, @refresh_rate + 120, :second))
+
+    assert connection_status(@token, {:ok, observation}) == :degraded
+  end
+
+  test "connection_status called with an older observation returns :disconnected" do
+    observation_time = DateTime.utc_now()
+    observation = %Observation{
+      temperature: 16.6,
+      humidity: 96,
+      feels_like: 16.6,
+      location: :outdoor,
+      accessed_at: observation_time
+    }
+
+    @clock.freeze(DateTime.add(observation_time, @refresh_rate * 6, :second))
+
+    assert connection_status(@token, {:ok, observation}) == :disconnected
   end
 end

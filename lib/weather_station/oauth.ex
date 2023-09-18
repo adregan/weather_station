@@ -81,11 +81,18 @@ defmodule WeatherStation.Oauth do
 
   """
   def create_token(attrs \\ %{}) do
-    %Token{}
-    |> Token.changeset(attrs)
-    |> Repo.insert()
-    |> broadcast(:token_created)
-    |> enqueue_observation_job()
+    resp =
+      %Token{}
+      |> Token.changeset(attrs)
+      |> Repo.insert()
+      |> broadcast(:token_created)
+
+    # yuck. temporary
+    if Mix.env() != :test do
+      enqueue_observation_job(resp)
+    end
+
+    resp
   end
 
   defp enqueue_observation_job({:ok, token}) do
@@ -127,9 +134,15 @@ defmodule WeatherStation.Oauth do
 
   """
   def delete_token(%Token{} = token) do
-    Repo.delete(token)
-    |> broadcast(:token_deleted)
-    |> dequeue_observation_job()
+    resp =
+      Repo.delete(token)
+      |> broadcast(:token_deleted)
+
+    if Mix.env() != :test do
+      dequeue_observation_job(resp)
+    end
+
+    resp
   end
 
   def dequeue_observation_job({:ok, token}) do

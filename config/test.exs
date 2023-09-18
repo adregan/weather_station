@@ -25,6 +25,8 @@ config :weather_station, WeatherStationWeb.Endpoint,
 # In test we don't send emails.
 config :weather_station, WeatherStation.Mailer, adapter: Swoosh.Adapters.Test
 
+config :weather_station, clock: WeatherStation.Test.Support.TimeTravelingClock
+
 # Disable swoosh api client as it is only required for production adapters.
 config :swoosh, :api_client, false
 
