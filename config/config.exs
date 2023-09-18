@@ -10,6 +10,8 @@ import Config
 config :weather_station,
   ecto_repos: [WeatherStation.Repo]
 
+config :weather_station, refresh_rate_in_seconds: 60
+
 # Configures the endpoint
 config :weather_station, WeatherStationWeb.Endpoint,
   url: [host: "localhost"],

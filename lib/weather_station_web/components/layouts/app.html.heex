@@ -1,7 +1,17 @@
 <section class="grid-rows-weather-station grid h-screen">
   <.weather_station_header
-    outdoor_connection={@outdoor_connection}
-    indoor_connection={@indoor_connection}
+    outdoor_connection_status={
+      WeatherStation.Connection.connection_status(
+        @outdoor_token,
+        @outdoor_observation
+      )
+    }
+    indoor_connection_status={
+      WeatherStation.Connection.connection_status(
+        @indoor_token,
+        @indoor_observation
+      )
+    }
   />
   <main class="p-4">
     <%= @inner_content %>

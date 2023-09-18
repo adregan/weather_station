@@ -7,7 +7,7 @@ defmodule WeatherStation.Workers.RefreshObservation do
   alias WeatherStation.Observations
   alias WeatherStation.Oauth.Token
 
-  @one_minute 60
+  @refresh_rate Application.compile_env(:weather_station, :refresh_rate_in_seconds)
 
   def enqueue(%Token{id: id}) do
     %{token_id: id}
@@ -25,7 +25,7 @@ defmodule WeatherStation.Workers.RefreshObservation do
   @impl Oban.Worker
   def perform(%Job{args: %{"token_id" => id} = args, attempt: 1}) do
     args
-    |> new(schedule_in: @one_minute)
+    |> new(schedule_in: @refresh_rate)
     |> Oban.insert()
 
     observe(id)

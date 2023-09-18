@@ -1,17 +1,16 @@
 defmodule WeatherStationWeb.WeatherStationComponents do
   use WeatherStationWeb, :html
-  alias WeatherStation.Token
 
-  attr :outdoor_connection, Token
-  attr :indoor_connection, Token
+  attr :outdoor_connection_status, :atom
+  attr :indoor_connection_status, :atom
 
   def weather_station_header(assigns) do
     ~H"""
     <header class="grid-cols-[max-content_1fr_max-content_max-content] grid w-screen gap-x-4 border-b-2 border-current">
       <.link navigate={~p"/"} class="flex items-center px-4">WS</.link>
       <div class="col-start-3 flex items-center space-x-4 py-2">
-        <.connection_status location={:outdoor} connection={@outdoor_connection} />
-        <.connection_status location={:indoor} connection={@indoor_connection} />
+        <.connection_status location={:outdoor} status={@outdoor_connection_status} />
+        <.connection_status location={:indoor} status={@indoor_connection_status} />
       </div>
 
       <.link
@@ -25,14 +24,14 @@ defmodule WeatherStationWeb.WeatherStationComponents do
   end
 
   attr :location, :atom, required: true
-  attr :connection, WeatherStation.Connection, required: true
+  attr :status, :atom, required: true
 
   defp connection_status(assigns) do
     ~H"""
     <div
       class="flex items-center gap-1"
       role="img"
-      aria-label={"#{@location} status is #{@connection.status}"}
+      aria-label={"#{@location} status is #{@status}"}
     >
       <span class="block">
         <%= case @location do
@@ -41,7 +40,7 @@ defmodule WeatherStationWeb.WeatherStationComponents do
         end %>
       </span>
       <span class={[
-        case @connection.status do
+        case @status do
           :pending -> "bg-yellow-300 animate-pulse"
           :disconnected -> "bg-red-400"
           :connected -> "bg-green-300"

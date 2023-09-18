@@ -1,6 +1,8 @@
 defmodule WeatherStationWeb.StationConnection do
   import Phoenix.Component
-  alias WeatherStation.ConnectionServer
+  import WeatherStation.Connection, only: [connection_status: 2]
+
+  alias WeatherStation.Observations
   alias WeatherStation.Oauth
   alias WeatherStation.Accounts
 
@@ -13,17 +15,16 @@ defmodule WeatherStationWeb.StationConnection do
     outdoor_token = user |> Oauth.get_token_by_location(:outdoor)
     indoor_token = user |> Oauth.get_token_by_location(:indoor)
 
-    outdoor_connection =
-      ConnectionServer.get_connection(outdoor_token, user.id, :outdoor)
-
-    indoor_connection =
-      ConnectionServer.get_connection(indoor_token, user.id, :indoor)
+    outdoor_observation = Observations.get_observation(outdoor_token)
+    indoor_observation =Observations.get_observation(indoor_token)
 
     socket =
       socket
       |> assign_new(:user, fn -> user end)
-      |> assign_new(:outdoor_connection, fn -> outdoor_connection end)
-      |> assign_new(:indoor_connection, fn -> indoor_connection end)
+      |> assign_new(:outdoor_token, fn -> outdoor_token end)
+      |> assign_new(:indoor_token, fn -> indoor_token end)
+      |> assign_new(:outdoor_observation, fn -> outdoor_observation end)
+      |> assign_new(:indoor_observation, fn -> indoor_observation end)
 
     {:cont, socket}
   end

@@ -1,39 +1,25 @@
 defmodule WeatherStation.Connection do
   alias WeatherStation.Oauth.Token
+  alias WeatherStation.Observations.Observation
 
-  @date_time_adapter if Mix.env() == :test,
-             do: WeatherStation.TestUtils.DateTime,
-             else: DateTime
+  @refresh_rate Application.compile_env(:weather_station, :refresh_rate_in_seconds) * 1000
+  @disconnect_time @refresh_rate * 5
 
-  defstruct status: :disconnected, token: nil, last_connected: nil
+  @spec connection_status(Token.t(), {:ok, Observation.t()} | {:error, Map.t()}) ::
+    :disconnected | :connected | :pending | :degraded
 
-  @type status :: :disconnected | :connected | :pending | :degraded
+  def connection_status(%Token{}, nil), do: :pending
 
-  @type t :: %__MODULE__{
-          status: status,
-          token: Token.t() | nil,
-          last_connected: DateTime.t() | nil
-        }
+  def connection_status(nil, _), do: :disconnected
 
-  def new(%Token{} = token) do
-    %WeatherStation.Connection{
-      status: :pending,
-      token: token,
-      last_connected: nil
-    }
-  end
+  def connection_status(%Token{}, {:error, _}), do: :disconnected
 
-  def new(nil), do: %WeatherStation.Connection{status: :disconnected}
-
-  def new, do: %WeatherStation.Connection{status: :disconnected}
-
-  def connect(%WeatherStation.Connection{} = connection) do
-    %{connection | status: :connected, last_connected: @date_time_adapter.utc_now()}
-  end
-
-  def disconnect(_), do: new()
-
-  def degrade(%WeatherStation.Connection{} = connection) do
-    %{connection | status: :degraded}
+  def connection_status(_, {:ok, %Observation{accessed_at: accessed_at}}) do
+    age = DateTime.diff(accessed_at, DateTime.utc_now())
+    cond do
+       age < @refresh_rate -> :connected
+       age > @refresh_rate and age < @disconnect_time -> :degraded
+       true -> :disconnected
+    end
   end
 end

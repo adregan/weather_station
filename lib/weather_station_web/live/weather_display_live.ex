@@ -1,13 +1,15 @@
 defmodule WeatherStationWeb.WeatherDisplayLive do
-  require Logger
-  alias WeatherStation.Accounts.User
   use WeatherStationWeb, :live_view
+
+  require Logger
+
+  alias WeatherStation.Accounts.User
   alias WeatherStation.Observations
-  alias WeatherStation.ConnectionServer
 
   def render(assigns) do
     ~H"""
-    <p><%= inspect(@observation) %></p>
+    <p><%= inspect(@outdoor_observation) %></p>
+    <p><%= inspect(@indoor_observation) %></p>
     """
   end
 
@@ -16,10 +18,7 @@ defmodule WeatherStationWeb.WeatherDisplayLive do
       Observations.subscribe()
     end
 
-    %{token: token} = socket.assigns.outdoor_connection
-    observation = if token, do: Observations.get_observation(token), else: nil
-
-    {:ok, update_observation(socket, observation)}
+    {:ok, socket}
   end
 
   def handle_params(_, _, socket) do
@@ -45,22 +44,11 @@ defmodule WeatherStationWeb.WeatherDisplayLive do
     {:noreply, socket}
   end
 
-  defp update_observation(socket, observation) do
-    socket
-    |> assign(:observation, observation)
-    |> update_connection(observation)
+  def update_observation(socket, {_, %{location: :indoor}} = observation) do
+    assign(socket, :indoor_observation, observation)
   end
 
-  defp update_connection(socket, {:ok, %{location: location}}) do
-    update(socket, location_key(location), &ConnectionServer.update(&1, :connect))
+  def update_observation(socket, {_, %{location: :outdoor}} = observation) do
+    assign(socket, :outdoor_observation, observation)
   end
-
-  defp update_connection(socket, {:error, %{location: location}}) do
-    update(socket, location_key(location), &ConnectionServer.update(&1, :degrade))
-  end
-
-  defp update_connection(socket, nil), do: socket
-
-  defp location_key(:outdoor), do: :outdoor_connection
-  defp location_key(:indoor), do: :indoor_connection
 end

@@ -1,6 +1,5 @@
 defmodule WeatherStationWeb.AuthorizeLive do
   alias WeatherStation.Accounts.User
-  alias WeatherStation.ConnectionServer
   use WeatherStationWeb, :live_view
 
   alias WeatherStation.Oauth
@@ -11,7 +10,7 @@ defmodule WeatherStationWeb.AuthorizeLive do
   def render(assigns) do
     ~H"""
     <h2><%= gettext("Outdoor Sensors") %></h2>
-    <%= if @outdoor_connection.status == :disconnected do %>
+    <%= if is_nil(@outdoor_token) do %>
       <ul>
         <li>
           <a href={Tempest.authorize_link()}>
@@ -21,7 +20,7 @@ defmodule WeatherStationWeb.AuthorizeLive do
       </ul>
     <% else %>
       <p>
-        <%= authorized_text(@outdoor_connection.token) %>
+        <%= authorized_text(@outdoor_token) %>
         <.button phx-click="unauthorize-outdoor">
           <%= gettext("unauthorize") %>
         </.button>
@@ -52,7 +51,7 @@ defmodule WeatherStationWeb.AuthorizeLive do
         socket =
           socket
           |> put_flash(:info, "Successfully authorized Tempest")
-          |> assign(:outdoor_connection, ConnectionServer.create(outdoor_token))
+          |> assign(:outdoor_token, outdoor_token)
           |> push_patch(to: ~p"/authorize")
 
         {:noreply, socket}
@@ -86,13 +85,8 @@ defmodule WeatherStationWeb.AuthorizeLive do
   end
 
   def handle_event("unauthorize-outdoor", _, socket) do
-    %{outdoor_connection: outdoor_connection} = socket.assigns
-
-    {:ok, _} = outdoor_connection.token |> Oauth.delete_token()
-
-    outdoor_connection = ConnectionServer.update(outdoor_connection, :disconnect)
-
-    {:noreply, assign(socket, :outdoor_connection, outdoor_connection)}
+    {:ok, _} = socket.assigns.outdoor_token |> Oauth.delete_token()
+    {:noreply, assign(socket, :outdoor_token, nil)}
   end
 
   def handle_info(msg, socket) do
