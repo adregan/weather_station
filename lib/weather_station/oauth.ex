@@ -60,6 +60,15 @@ defmodule WeatherStation.Oauth do
   def get_token!(id), do: Repo.get!(Token, id)
 
   @doc """
+  Gets a user's token by location.
+  """
+  @spec get_token_by_location(%WeatherStation.Accounts.User{}, :outdoor | :indoor) ::
+          Ecto.Schema.t() | term() | nil
+  def get_token_by_location(user, location) do
+    Repo.get_by(Token, user_id: user.id, location: location)
+  end
+
+  @doc """
   Creates a token.
 
   ## Examples

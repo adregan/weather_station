@@ -10,10 +10,8 @@ defmodule WeatherStationWeb.StationConnection do
       |> Map.get("session_key")
       |> Accounts.get_user_by_session_key()
 
-    tokens = user |> Oauth.list_tokens_by_user()
-
-    outdoor_token = tokens |> Enum.find(&is_outdoor_token?/1)
-    indoor_token = tokens |> Enum.find(&is_indoor_token?/1)
+    outdoor_token = user |> Oauth.get_token_by_location(:outdoor)
+    indoor_token = user |> Oauth.get_token_by_location(:indoor)
 
     outdoor_connection =
       ConnectionServer.get_connection(outdoor_token, user.id, :outdoor)
@@ -30,7 +28,4 @@ defmodule WeatherStationWeb.StationConnection do
 
     {:cont, socket}
   end
-
-  defp is_indoor_token?(%Oauth.Token{location: location}), do: location == :indoor
-  defp is_outdoor_token?(%Oauth.Token{location: location}), do: location == :outdoor
 end
