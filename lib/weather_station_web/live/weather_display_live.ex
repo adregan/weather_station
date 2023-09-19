@@ -32,12 +32,16 @@ defmodule WeatherStationWeb.WeatherDisplayLive do
     {:noreply, update_observation(socket, observation)}
   end
 
+  def handle_info({:observation_created, _, _}, socket), do: {:noreply, socket}
+
   def handle_info(
         {:observation_errored, user_id, error},
         %{assigns: %{user: %User{id: user_id}}} = socket
       ) do
     {:noreply, update_observation(socket, error)}
   end
+
+  def handle_info({:observation_errored, _, _}, socket), do: {:noreply, socket}
 
   def handle_info(msg, socket) do
     Logger.warning("Unknown message sent to #{__MODULE__}: #{inspect(msg, pretty: true)}")
