@@ -8,7 +8,7 @@ defmodule WeatherStation.AccountsTest do
 
     import WeatherStation.AccountsFixtures
 
-    @invalid_attrs %{auth_code: nil}
+    @invalid_attrs %{auth_code: %{wow: :ok}}
 
     test "list_users/0 returns all users" do
       user = user_fixture()

@@ -37,7 +37,7 @@ defmodule WeatherStation.OauthTest do
 
     test "get_token_by_location/2 returns nil if a token for a given location doesn't exist" do
       user = WeatherStation.AccountsFixtures.user_fixture()
-      token = token_fixture(%{user_id: user.id, location: :outdoor})
+      token_fixture(%{user_id: user.id, location: :outdoor})
 
       assert Oauth.get_token_by_location(user, :indoor) == nil
     end
