@@ -13,7 +13,7 @@ config :weather_station, WeatherStation.Repo,
   pool: Ecto.Adapters.SQL.Sandbox,
   pool_size: 10
 
-config :weather_station, Oban, testing: :inline
+config :weather_station, Oban, testing: :manual
 
 # We don't run a server during test. If one is required,
 # you can enable the server option below.

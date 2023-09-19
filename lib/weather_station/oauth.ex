@@ -14,6 +14,10 @@ defmodule WeatherStation.Oauth do
     Phoenix.PubSub.subscribe(WeatherStation.PubSub, @topic)
   end
 
+  def unsubscribe do
+    Phoenix.PubSub.unsubscribe(WeatherStation.PubSub, @topic)
+  end
+
   def broadcast({:ok, token}, tag) do
     Phoenix.PubSub.broadcast(WeatherStation.PubSub, @topic, {tag, token})
     {:ok, token}
@@ -81,18 +85,11 @@ defmodule WeatherStation.Oauth do
 
   """
   def create_token(attrs \\ %{}) do
-    resp =
-      %Token{}
-      |> Token.changeset(attrs)
-      |> Repo.insert()
-      |> broadcast(:token_created)
-
-    # yuck. temporary
-    if Mix.env() != :test do
-      enqueue_observation_job(resp)
-    end
-
-    resp
+    %Token{}
+    |> Token.changeset(attrs)
+    |> Repo.insert()
+    |> broadcast(:token_created)
+    |> enqueue_observation_job()
   end
 
   defp enqueue_observation_job({:ok, token}) do
@@ -134,15 +131,9 @@ defmodule WeatherStation.Oauth do
 
   """
   def delete_token(%Token{} = token) do
-    resp =
-      Repo.delete(token)
-      |> broadcast(:token_deleted)
-
-    if Mix.env() != :test do
-      dequeue_observation_job(resp)
-    end
-
-    resp
+    Repo.delete(token)
+    |> broadcast(:token_deleted)
+    |> dequeue_observation_job()
   end
 
   def dequeue_observation_job({:ok, token}) do
