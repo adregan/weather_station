@@ -1,6 +1,6 @@
 defmodule WeatherStation.Oauth.Tempest do
-  use WeatherStationWeb, :html
-  alias Req
+  @behaviour WeatherStation.OauthClient
+
   require Logger
 
   @tempest Req.new(base_url: "https://swd.weatherflow.com")
@@ -8,17 +8,19 @@ defmodule WeatherStation.Oauth.Tempest do
   @client_secret Application.compile_env(:weather_station, :tempest_client_secret)
   @adapter Application.compile_env(:weather_station, Req.Request) |> Keyword.get(:adapter)
 
-  def authorize_link() do
+  @impl WeatherStation.OauthClient
+  def authorize_link(redirect_uri) do
     params = %{
       client_id: @client_id,
       response_type: "code",
-      redirect_uri: url(~p"/authorize/callback"),
+      redirect_uri: redirect_uri,
       state: "outdoor:tempest"
     }
 
     "https://tempestwx.com/authorize.html?#{URI.encode_query(params)}"
   end
 
+  @impl WeatherStation.OauthClient
   def access_token(code) do
     Req.post(@tempest,
       adapter: @adapter,

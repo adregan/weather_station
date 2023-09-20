@@ -13,7 +13,7 @@ defmodule WeatherStationWeb.AuthorizeLive do
     <%= if is_nil(@outdoor_token) do %>
       <ul>
         <li>
-          <a href={Tempest.authorize_link()}>
+          <a href={Tempest.authorize_link(@redirect_uri)}>
             <%= gettext("Authorize with Tempest") %>
           </a>
         </li>
@@ -30,7 +30,7 @@ defmodule WeatherStationWeb.AuthorizeLive do
   end
 
   def mount(_, _, socket) do
-    {:ok, socket}
+    {:ok, assign(socket, :redirect_uri, url(~p"/authorize/callback"))}
   end
 
   def handle_params(
