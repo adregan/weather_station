@@ -12,7 +12,7 @@ defmodule WeatherStation.Oauth.Tempest do
     params = %{
       client_id: @client_id,
       response_type: "code",
-      redirect_uri: url(~p"/authorize"),
+      redirect_uri: url(~p"/authorize/callback"),
       state: "outdoor:tempest"
     }
 

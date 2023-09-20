@@ -33,7 +33,11 @@ defmodule WeatherStationWeb.AuthorizeLive do
     {:ok, socket}
   end
 
-  def handle_params(%{"code" => code, "state" => "outdoor:tempest"}, _uri, socket) do
+  def handle_params(
+        %{"code" => code, "state" => "outdoor:tempest"},
+        _uri,
+        %{assigns: %{live_action: :authorize}} = socket
+      ) do
     case Tempest.access_token(code) do
       {:ok, token} ->
         %{user: %User{id: user_id}} = socket.assigns
@@ -70,12 +74,20 @@ defmodule WeatherStationWeb.AuthorizeLive do
     end
   end
 
-  def handle_params(%{"code" => _code, "state" => "indoor:" <> _service}, _uri, socket) do
+  def handle_params(
+        %{"code" => _code, "state" => "indoor:" <> _service},
+        _uri,
+        %{assigns: %{live_action: :authorize}} = socket
+      ) do
     # TODO: Handle indoor codes
     {:noreply, socket}
   end
 
-  def handle_params(%{"code" => _code, "state" => state}, _uri, socket) do
+  def handle_params(
+        %{"code" => _code, "state" => state},
+        _uri,
+        %{assigns: %{live_action: :authorize}} = socket
+      ) do
     Logger.info("[#{__MODULE__}] Received a code for an unsupported service: #{state}")
     {:noreply, socket}
   end
