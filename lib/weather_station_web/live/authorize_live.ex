@@ -1,5 +1,4 @@
 defmodule WeatherStationWeb.AuthorizeLive do
-  alias WeatherStation.Accounts.User
   use WeatherStationWeb, :live_view
 
   alias WeatherStation.Oauth
@@ -31,69 +30,6 @@ defmodule WeatherStationWeb.AuthorizeLive do
 
   def mount(_, _, socket) do
     {:ok, assign(socket, :redirect_uri, url(~p"/authorize/callback"))}
-  end
-
-  def handle_params(
-        %{"code" => code, "state" => "outdoor:tempest"},
-        _uri,
-        %{assigns: %{live_action: :authorize}} = socket
-      ) do
-    case Tempest.access_token(code) do
-      {:ok, token} ->
-        %{user: %User{id: user_id}} = socket.assigns
-
-        {:ok, outdoor_token} =
-          Oauth.create_token(%{
-            user_id: user_id,
-            token: token,
-            service: :tempest,
-            location: :outdoor
-          })
-
-        Logger.info("Successfully stored outdoor:tempest token for user: #{user_id}")
-
-        socket =
-          socket
-          |> put_flash(:info, "Successfully authorized Tempest")
-          |> assign(:outdoor_token, outdoor_token)
-          |> push_patch(to: ~p"/authorize")
-
-        {:noreply, socket}
-
-      {:error, reason} ->
-        Logger.warning(
-          "[#{__MODULE__}] received Tempest authentication error: #{inspect(reason)}"
-        )
-
-        socket =
-          socket
-          |> put_flash(:error, "Something went wrong authorizing Tempest, please try again")
-          |> push_patch(to: ~p"/authorize")
-
-        {:noreply, socket}
-    end
-  end
-
-  def handle_params(
-        %{"code" => _code, "state" => "indoor:" <> _service},
-        _uri,
-        %{assigns: %{live_action: :authorize}} = socket
-      ) do
-    # TODO: Handle indoor codes
-    {:noreply, socket}
-  end
-
-  def handle_params(
-        %{"code" => _code, "state" => state},
-        _uri,
-        %{assigns: %{live_action: :authorize}} = socket
-      ) do
-    Logger.info("[#{__MODULE__}] Received a code for an unsupported service: #{state}")
-    {:noreply, socket}
-  end
-
-  def handle_params(_, _, socket) do
-    {:noreply, socket}
   end
 
   def handle_event("unauthorize-outdoor", _, socket) do
