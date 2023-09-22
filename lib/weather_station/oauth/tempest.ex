@@ -1,5 +1,6 @@
 defmodule WeatherStation.Oauth.Tempest do
-  @behaviour WeatherStation.OauthClient
+  alias WeatherStation.OauthClient
+  @behaviour OauthClient
 
   require Logger
 
@@ -8,7 +9,7 @@ defmodule WeatherStation.Oauth.Tempest do
   @client_secret Application.compile_env(:weather_station, :tempest_client_secret)
   @adapter Application.compile_env(:weather_station, Req.Request) |> Keyword.get(:adapter)
 
-  @impl WeatherStation.OauthClient
+  @impl OauthClient
   def authorize_link(redirect_uri) do
     params = %{
       client_id: @client_id,
@@ -34,6 +35,9 @@ defmodule WeatherStation.Oauth.Tempest do
     )
     |> handle_access_token_response()
   end
+
+  @impl OauthClient
+  def name, do: :tempest
 
   defp handle_access_token_response({:ok, %{status: 200} = response}) do
     %{"access_token" => access_token} = response.body

@@ -22,7 +22,7 @@ defmodule WeatherStationWeb.Router do
 
     live_session :default, on_mount: [WeatherStationWeb.StationConnection] do
       live "/", WeatherDisplayLive, :index
-      live "/authorize", AuthorizeLive, :index
+      live "/settings", SettingsLive, :index
     end
   end
 

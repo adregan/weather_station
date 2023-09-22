@@ -14,7 +14,7 @@ defmodule WeatherStationWeb.WeatherStationComponents do
       </div>
 
       <.link
-        navigate={~p"/authorize"}
+        navigate={~p"/settings"}
         class="col-start-4 flex items-center border-l border-solid border-l-current px-2 py-0"
       >
         <span class="hero-cog" role="img" aria-label="Update settings"></span>
@@ -42,6 +42,7 @@ defmodule WeatherStationWeb.WeatherStationComponents do
       <span class={[
         case @status do
           :pending -> "bg-yellow-300 animate-pulse"
+          :degraded -> "bg-orange-300 animate-pulse"
           :disconnected -> "bg-red-400"
           :connected -> "bg-green-300"
         end,

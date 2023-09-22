@@ -10,17 +10,17 @@ defmodule WeatherStationWeb.AuthorizeController do
   def callback(conn, %{"code" => code, "state" => "outdoor:tempest"}) do
     Tempest.access_token(code)
     |> handle_token_response(conn, :tempest, :outdoor)
-    |> redirect(to: ~p"/authorize")
+    |> redirect_to_settings()
   end
 
   def callback(conn, %{"code" => _code, "state" => state}) do
     Logger.info("[#{__MODULE__}] Received a code for an unsupported service: #{state}")
-    redirect(conn, to: ~p"/authorize")
+    redirect_to_settings(conn)
   end
 
-  def callback(conn, _) do
-    redirect(conn, to: ~p"/authorize")
-  end
+  def callback(conn, _), do: redirect_to_settings(conn)
+
+  defp redirect_to_settings(conn), do: redirect(conn, to: ~p"/settings")
 
   defp handle_token_response({:ok, token}, conn, service, location) do
     user_id =

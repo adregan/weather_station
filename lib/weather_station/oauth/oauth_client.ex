@@ -13,4 +13,9 @@ defmodule WeatherStation.OauthClient do
   @type token :: String.t
   @type reason :: String.t
   @callback access_token(code) :: {:ok, token} | {:error, reason}
+
+  @doc """
+  Returns the atom with the name of the service.
+  """
+  @callback name :: atom
 end
