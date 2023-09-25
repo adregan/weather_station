@@ -1,12 +1,13 @@
 defmodule WeatherStation.Observations do
   @moduledoc """
-  The Observations Context.
+  The Observations context.
   """
-  require Logger
 
-  alias WeatherStation.ObservationServer
+  import Ecto.Query, warn: false
   alias WeatherStation.Oauth.Token
-  alias WeatherStation.Observations.{Observation, Tempest}
+  alias WeatherStation.Repo
+
+  alias WeatherStation.Observations.Observation
 
   @pubsub WeatherStation.PubSub
   @topic inspect(__MODULE__)
@@ -15,53 +16,121 @@ defmodule WeatherStation.Observations do
     Phoenix.PubSub.subscribe(WeatherStation.PubSub, @topic)
   end
 
-  def broadcast({:ok, _} = observation, tag, user_id) do
-    Phoenix.PubSub.broadcast(@pubsub, @topic, {tag, user_id, observation})
+  def unsubscribe do
+    Phoenix.PubSub.unsubscribe(WeatherStation.PubSub, @topic)
+  end
 
+  def broadcast({:ok, observation}, tag) do
+    Phoenix.PubSub.broadcast(@pubsub, @topic, {tag, observation})
+    {:ok, observation}
+  end
+
+  def broadcast({:error, _} = error, _), do: error
+
+  @doc """
+  Returns the list of observations.
+
+  ## Examples
+
+      iex> list_observations()
+      [%Observation{}, ...]
+
+  """
+  def list_observations do
+    Repo.all(Observation)
+  end
+
+  @doc """
+  Gets a single observation.
+
+  Raises `Ecto.NoResultsError` if the O observation does not exist.
+
+  ## Examples
+
+      iex> get_observation!(123)
+      %Observation{}
+
+      iex> get_observation!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_observation!(id), do: Repo.get!(Observation, id)
+
+  @spec get_latest_observation(Token.t()) :: Ecto.Schema.t() | term() | nil
+
+  def get_latest_observation(%Token{id: token_id}) do
+    Observation
+    |> where(token_id: ^token_id)
+    |> order_by(desc: :inserted_at)
+    |> limit(1)
+    |> Repo.one()
+  end
+
+  def get_latest_observation(nil), do: nil
+
+  @doc """
+  Creates a observation.
+
+  ## Examples
+
+      iex> create_observation(%{field: value})
+      {:ok, %Observation{}}
+
+      iex> create_observation(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_observation(attrs \\ %{}) do
+    %Observation{}
+    |> Observation.changeset(attrs)
+    |> Repo.insert()
+    |> broadcast(:observation_created)
+  end
+
+  @doc """
+  Updates a observation.
+
+  ## Examples
+
+      iex> update_observation(observation, %{field: new_value})
+      {:ok, %Observation{}}
+
+      iex> update_observation(observation, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_observation(%Observation{} = observation, attrs) do
     observation
+    |> Observation.changeset(attrs)
+    |> Repo.update()
   end
 
-  def broadcast({:error, _} = error, tag, user_id) do
-    case tag do
-      :observation_created ->
-        Phoenix.PubSub.broadcast(@pubsub, @topic, {:observation_errored, user_id, error})
+  @doc """
+  Deletes a observation.
 
-      _ ->
-        nil
-    end
+  ## Examples
 
-    error
+      iex> delete_observation(observation)
+      {:ok, %Observation{}}
+
+      iex> delete_observation(observation)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def delete_observation(%Observation{} = observation) do
+    Repo.delete(observation)
   end
 
-  def create_observation(%Token{user_id: user_id, location: location} = token) do
-    Task.async(fn -> fetch_observation(token) end)
-    |> Task.await()
-    |> ObservationServer.insert(to_id(user_id, location))
-    |> broadcast(:observation_created, user_id)
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking observation changes.
+
+  ## Examples
+
+      iex> change_observation(observation)
+      %Ecto.Changeset{data: %Observation{}}
+
+  """
+  def change_observation(%Observation{} = observation, attrs \\ %{}) do
+    Observation.changeset(observation, attrs)
   end
-
-  def get_observation(%Token{user_id: user_id, location: location} = token) do
-    case ObservationServer.get(to_id(user_id, location)) do
-      %Observation{} = observation -> {:ok, observation}
-
-      nil ->
-        create_observation(token)
-        # TODO: Notify the jobs server that the token had no observations
-    end
-  end
-
-  def get_observation(nil), do: nil
-
-  defp fetch_observation(%Token{service: service} = token) do
-    case service do
-      :tempest ->
-        Tempest.fetch_observations(token)
-
-      _ ->
-        Logger.error("Fetching from service `#{service}` is not implemented")
-        {:error, %{location: token.location, service: service, error_code: :not_implmented}}
-    end
-  end
-
-  defp to_id(user_id, location), do: "#{user_id}:#{location}"
 end

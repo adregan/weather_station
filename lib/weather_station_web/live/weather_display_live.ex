@@ -5,6 +5,8 @@ defmodule WeatherStationWeb.WeatherDisplayLive do
 
   alias WeatherStation.Accounts.User
   alias WeatherStation.Observations
+  alias WeatherStation.Observations.Observation
+  alias WeatherStationWeb.ViewModels.OutdoorObservation
 
   def render(assigns) do
     ~H"""
@@ -21,12 +23,8 @@ defmodule WeatherStationWeb.WeatherDisplayLive do
     {:ok, socket}
   end
 
-  def handle_params(_, _, socket) do
-    {:noreply, socket}
-  end
-
   def handle_info(
-        {:observation_created, user_id, observation},
+        {:observation_created, %Observation{user_id: user_id} = observation},
         %{assigns: %{user: %User{id: user_id}}} = socket
       ) do
     {:noreply, update_observation(socket, observation)}
@@ -34,25 +32,26 @@ defmodule WeatherStationWeb.WeatherDisplayLive do
 
   def handle_info({:observation_created, _, _}, socket), do: {:noreply, socket}
 
-  def handle_info(
-        {:observation_errored, user_id, error},
-        %{assigns: %{user: %User{id: user_id}}} = socket
-      ) do
-    {:noreply, update_observation(socket, error)}
-  end
-
-  def handle_info({:observation_errored, _, _}, socket), do: {:noreply, socket}
-
   def handle_info(msg, socket) do
     Logger.warning("Unknown message sent to #{__MODULE__}: #{inspect(msg, pretty: true)}")
     {:noreply, socket}
   end
 
-  def update_observation(socket, {_, %{location: :indoor}} = observation) do
+  def update_observation(
+        %{assigns: %{indoor_token: %{id: token_id, service: _service}}} = socket,
+        %{token_id: token_id} = observation
+      ) do
     assign(socket, :indoor_observation, observation)
   end
 
-  def update_observation(socket, {_, %{location: :outdoor}} = observation) do
+  def update_observation(
+        %{assigns: %{outdoor_token: %{id: token_id, service: service}}} = socket,
+        %{token_id: token_id} = observation
+      ) do
+    observation =
+      observation
+      |> OutdoorObservation.transform(service, temp_unit: socket.assigns.temp_unit)
+
     assign(socket, :outdoor_observation, observation)
   end
 end

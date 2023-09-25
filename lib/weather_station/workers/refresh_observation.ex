@@ -1,4 +1,5 @@
 defmodule WeatherStation.Workers.RefreshObservation do
+  alias WeatherStation.Observations.Tempest
   use Oban.Worker, queue: :observations
 
   import Ecto.Query, only: [where: 2]
@@ -23,19 +24,28 @@ defmodule WeatherStation.Workers.RefreshObservation do
   end
 
   @impl Oban.Worker
-  def perform(%Job{args: %{"token_id" => id} = args, attempt: 1}) do
+  def perform(%Job{args: %{"token_id" => token_id} = args, attempt: 1}) do
     args
     |> new(schedule_in: @refresh_rate)
     |> Oban.insert()
 
-    observe(id)
+    observe(token_id)
   end
 
-  def perform(%Job{args: %{"token_id" => id}}), do: observe(id)
+  def perform(%Job{args: %{"token_id" => token_id}}), do: observe(token_id)
 
-  defp observe(id) do
-    id
-    |> get_token!()
-    |> Observations.create_observation()
+  defp observe(token_id) do
+    token = get_token!(token_id)
+
+    case fetch(token) do
+      {:ok, data} ->
+        %{token_id: token_id, user_id: token.user_id, data: data}
+        |> Observations.create_observation()
+
+      error ->
+        error
+    end
   end
+
+  defp fetch(%Token{service: :tempest} = token), do: Tempest.fetch_observation(token)
 end

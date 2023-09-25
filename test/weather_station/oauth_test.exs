@@ -27,19 +27,24 @@ defmodule WeatherStation.OauthTest do
       assert Oauth.get_token!(token.id) == token
     end
 
-    test "get_token_by_location/2 returns user's token with given location" do
+    test "get_token/1 returns the token with given id" do
+      token = token_fixture()
+      assert Oauth.get_token(id: token.id) == token
+    end
+
+    test "get_token/1 filters by user and location" do
       user = WeatherStation.AccountsFixtures.user_fixture()
       location = :outdoor
       token = token_fixture(%{user_id: user.id, location: location})
 
-      assert Oauth.get_token_by_location(user, location) == token
+      assert Oauth.get_token(user: user, location: location) == token
     end
 
-    test "get_token_by_location/2 returns nil if a token for a given location doesn't exist" do
+    test "get_token/2 returns nil if a token doesn't exist" do
       user = WeatherStation.AccountsFixtures.user_fixture()
       token_fixture(%{user_id: user.id, location: :outdoor})
 
-      assert Oauth.get_token_by_location(user, :indoor) == nil
+      assert Oauth.get_token(user: user, location: :indoor) == nil
     end
 
     test "create_token/1 with valid data creates a token" do

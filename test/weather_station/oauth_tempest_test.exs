@@ -4,16 +4,16 @@ defmodule WeatherStation.TempestTest do
 
   test "authorize_link produces valid oauth link parameters" do
     tempest = "https://tempestwx.com/authorize.html"
-    port = Application.fetch_env!(:weather_station, WeatherStationWeb.Endpoint)[:http][:port]
     client_id = Application.fetch_env!(:weather_station, :tempest_client_id)
+    redirect_uri = "https://example.com/cool"
 
-    [^tempest, query] = Tempest.authorize_link() |> String.split("?")
+    [^tempest, query] = Tempest.authorize_link(redirect_uri) |> String.split("?")
 
     assert URI.decode_query(query) ==
              %{
                "client_id" => client_id,
                "response_type" => "code",
-               "redirect_uri" => "http://localhost:#{port}/authorize",
+               "redirect_uri" => redirect_uri,
                "state" => "outdoor:tempest"
              }
   end

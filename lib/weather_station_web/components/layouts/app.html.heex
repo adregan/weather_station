@@ -1,13 +1,13 @@
 <section class="grid-rows-weather-station grid h-screen">
   <.weather_station_header
     outdoor_connection_status={
-      WeatherStation.Connection.connection_status(
+      WeatherStationWeb.ViewModels.Connection.connection_status(
         @outdoor_token,
         @outdoor_observation
       )
     }
     indoor_connection_status={
-      WeatherStation.Connection.connection_status(
+      WeatherStationWeb.ViewModels.Connection.connection_status(
         @indoor_token,
         @indoor_observation
       )

@@ -1,8 +1,9 @@
 defmodule WeatherStation.Oauth.Token do
-  @derive {Jason.Encoder, only: [:token, :user_id, :service, :location]}
-
   use Ecto.Schema
   import Ecto.Changeset
+
+  @derive {Jason.Encoder, only: [:token, :user_id, :service, :location]}
+  @timestamps_opts [type: :utc_datetime]
 
   schema "tokens" do
     field :token, :string

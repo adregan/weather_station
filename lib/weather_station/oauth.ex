@@ -7,6 +7,7 @@ defmodule WeatherStation.Oauth do
   alias WeatherStation.Repo
 
   alias WeatherStation.Oauth.Token
+  alias WeatherStation.Accounts.User
 
   @topic inspect(__MODULE__)
 
@@ -63,14 +64,31 @@ defmodule WeatherStation.Oauth do
   """
   def get_token!(id), do: Repo.get!(Token, id)
 
-  @doc """
-  Gets a user's token by location.
-  """
-  @spec get_token_by_location(%WeatherStation.Accounts.User{}, :outdoor | :indoor) ::
+  @type location :: :outdoor | :indoor
+
+  @spec get_token([{:id, String.t()}, {:user, User.t()}, {:location, location}]) ::
           Ecto.Schema.t() | term() | nil
-  def get_token_by_location(user, location) do
-    Repo.get_by(Token, user_id: user.id, location: location)
+  def get_token(opts \\ []) do
+    opts |> Keyword.validate([:id, :user, :location])
+
+    Token
+    |> filter_by_id(Keyword.get(opts, :id))
+    |> filter_by_user(Keyword.get(opts, :user))
+    |> filter_by_location(Keyword.get(opts, :location))
+    |> limit(1)
+    |> Repo.one()
   end
+
+  defp filter_by_id(query, id) when is_number(id), do: query |> where(id: ^id)
+  defp filter_by_id(query, nil), do: query
+
+  defp filter_by_user(query, %User{id: user_id}), do: query |> where(user_id: ^user_id)
+  defp filter_by_user(query, nil), do: query
+
+  defp filter_by_location(query, location) when is_atom(location) and not is_nil(location),
+    do: query |> where(location: ^location)
+
+  defp filter_by_location(query, nil), do: query
 
   @doc """
   Creates a token.

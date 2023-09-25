@@ -2,25 +2,31 @@ defmodule WeatherStation.Observations.Tempest do
   require Logger
 
   alias Req
-  alias WeatherStation.Observations.Observation
   alias WeatherStation.Oauth.Token
+  alias WeatherStation.Observations.ObservationClient
+
+  @behaviour WeatherStation.Observations.ObservationClient
 
   @tempest_rest Req.new(base_url: "https://swd.weatherflow.com/swd/rest")
   @adapter Application.compile_env(:weather_station, Req.Request) |> Keyword.get(:adapter)
 
-  def fetch_observations(%Token{} = token) do
+  @impl ObservationClient
+  def fetch_observation(%Token{} = token) do
     with {:ok, station_id} <- station_id(token),
-         {:ok, observation} <- station_observation(station_id, token) do
-      {:ok, observation}
+         {:ok, observation_data} <- station_observation(station_id, token) do
+      {:ok, observation_data}
     else
       error_code when error_code in [:error_station_id, :error_observation] ->
-        {:error, %{location: :outdoor, service: :tempest, error_code: error_code}}
+        error_resp(error_code)
 
       error ->
         Logger.warning("[#{__MODULE__}][#{inspect(__ENV__.function)}]: #{inspect(error)}")
-        {:error, %{location: :outdoor, service: :tempest, error_code: :unknown_error}}
+        error_resp(:unknown_error)
     end
   end
+
+  defp error_resp(error_code),
+    do: {:error, %{location: :outdoor, service: :tempest, error_code: error_code}}
 
   defp station_id(%Token{token: access_token}) do
     Req.get(@tempest_rest,
@@ -65,27 +71,12 @@ defmodule WeatherStation.Observations.Tempest do
   end
 
   defp handle_observation_response({:ok, %Req.Response{status: 200} = response}) do
-    response.body
-    |> Map.get("obs", [])
-    |> List.first(%{})
-    |> Map.take(["air_temperature", "relative_humidity", "feels_like"])
-    |> case do
-      %{
-        "air_temperature" => temperature,
-        "relative_humidity" => humidity,
-        "feels_like" => feels_like
-      } ->
-        {:ok,
-         Observation.new(%{
-           temperature: temperature,
-           humidity: humidity,
-           feels_like: feels_like,
-           location: :outdoor
-         })}
+    observation_data =
+      response.body
+      |> Map.get("obs", [])
+      |> List.first(%{})
 
-      _ ->
-        :error_observation
-    end
+    {:ok, observation_data}
   end
 
   defp handle_observation_response({:ok, %Req.Response{status: status} = response}) do

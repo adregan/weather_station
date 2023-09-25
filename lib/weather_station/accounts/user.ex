@@ -3,6 +3,7 @@ defmodule WeatherStation.Accounts.User do
   import Ecto.Changeset
 
   @primary_key {:id, :binary_id, autogenerate: true}
+  @timestamps_opts [type: :utc_datetime]
 
   schema "users" do
     field :auth_code, :string, autogenerate: {WeatherStation.AuthCode, :generate, [8]}
