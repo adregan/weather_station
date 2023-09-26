@@ -1,5 +1,6 @@
 defmodule WeatherStationWeb.SettingsLive do
   use WeatherStationWeb, :live_view
+  use WeatherStationWeb.StationConnection
 
   alias WeatherStationWeb.AuthorizeComponent
 
@@ -23,6 +24,7 @@ defmodule WeatherStationWeb.SettingsLive do
   end
 
   def mount(_, _, socket) do
+    start_connection_heartbeat()
     {:ok, assign(socket, :redirect_uri, url(~p"/authorize/callback"))}
   end
 

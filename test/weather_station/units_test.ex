@@ -20,5 +20,10 @@ defmodule WeatherStation.UnitsTest do
     test "converts Fahrenheit into Celsius" do
       assert convert_temperature(65, :f, :c) == 18.3
     end
+
+    test "passes through temp when the units are the same" do
+      assert convert_temperature(65, :f, :f) == 65
+      assert convert_temperature(18.3, :c, :c) == 18.3
+    end
   end
 end

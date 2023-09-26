@@ -11,6 +11,10 @@ defmodule WeatherStation.Units do
     (temp * (9 / 5) + 32) |> Float.round(1)
   end
 
+  def convert_temperature(temp, :c, :c) when is_number(temp), do: temp
+
+  def convert_temperature(temp, :f, :f) when is_number(temp), do: temp
+
   def convert_temperature(temp, _, _) when is_number(temp), do: :error
 
   def convert_temperature(_, _, _), do: :error

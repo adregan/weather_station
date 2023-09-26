@@ -1,12 +1,13 @@
 defmodule WeatherStationWeb.WeatherDisplayLive do
   use WeatherStationWeb, :live_view
+  use WeatherStationWeb.StationConnection
 
   require Logger
 
   alias WeatherStation.Accounts.User
   alias WeatherStation.Observations
   alias WeatherStation.Observations.Observation
-  alias WeatherStationWeb.ViewModels.OutdoorObservation
+  import WeatherStationWeb.ViewModels.OutdoorObservation, only: [transform: 3]
 
   def render(assigns) do
     ~H"""
@@ -19,6 +20,26 @@ defmodule WeatherStationWeb.WeatherDisplayLive do
     if connected?(socket) do
       Observations.subscribe()
     end
+
+    %{
+      outdoor_token: outdoor_token,
+      indoor_token: indoor_token,
+      temp_unit: temp_unit
+    } = socket.assigns
+
+    outdoor_observation =
+      Observations.get_latest_observation(outdoor_token)
+      |> transform(outdoor_token.service, temp_unit: temp_unit)
+
+    indoor_observation =
+      Observations.get_latest_observation(indoor_token)
+
+    socket =
+      socket
+      |> assign(:outdoor_observation, outdoor_observation)
+      |> assign(:indoor_observation, indoor_observation)
+
+    start_connection_heartbeat()
 
     {:ok, socket}
   end
@@ -49,8 +70,7 @@ defmodule WeatherStationWeb.WeatherDisplayLive do
         %{token_id: token_id} = observation
       ) do
     observation =
-      observation
-      |> OutdoorObservation.transform(service, temp_unit: socket.assigns.temp_unit)
+      observation |> transform(service, temp_unit: socket.assigns.temp_unit)
 
     assign(socket, :outdoor_observation, observation)
   end
